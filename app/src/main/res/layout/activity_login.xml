@@ -30,12 +30,32 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Google Status Text View"
+                android:id="@+id/googleStatusTextView"
+                android:layout_gravity="center_horizontal"
+                android:textSize="25sp"/>
+
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/google_sign_in_button"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Google Sign Out"
+                android:id="@+id/googleSignOutButton"
+                android:layout_gravity="center_horizontal"/>
+
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <!-- AutoCompleteTextView  -->
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/usernameField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -89,6 +109,8 @@
                 android:text="@string/action_sign_up"
                 android:textStyle="bold"
                 android:textAlignment="center"/>
+
+
 
         </LinearLayout>
     </ScrollView>

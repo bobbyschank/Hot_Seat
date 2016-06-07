@@ -19,8 +19,23 @@
         completions."
     </string>
     <string name="action_next">Next</string>
+    <string name="title_activity_login2">Log in</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
 
+    <!-- Strings related to Google Login -->
+    <string name="google_signed_out">Signed Out</string>
+    <string name="google_greeting">Hello, </string>
+    <string name="login_error_title">Problem Signing In</string>
+    <string name="login_error_message">Sign in failed.</string>
+    <string name="menu_logout_label">Log out</string>
 
-
+    <!-- Fragments -->
+    <string name="title_section_inbox">Inbox</string>
+    <string name="title_section_friends">Friends</string>
+    <string name="empty_inbox_label">No new messages</string>
+    <string name="empty_friends_label">Add friends to begin!</string>
+    <string name="menu_edit_friends_label">Edit Friends</string>
+    <string name="title_activity_edit_friends">Edit Friends</string>
 
 </resources>

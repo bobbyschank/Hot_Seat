@@ -57,8 +57,11 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
     private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
+    protected AutoCompleteTextView mUsernameView;
+    protected EditText mPasswordView;
+    protected AutoCompleteTextView mEmailView;
+    protected Button mSignUpButton;
+
     private View mProgressView;
     private View mLoginFormView;
 
@@ -67,7 +70,8 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+
+        mUsernameView = (AutoCompleteTextView) findViewById(R.id.usernameField);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.passwordField);
@@ -82,8 +86,11 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        mEmailView = (AutoCompleteTextView) findViewById(R.id.emailField);
+        populateAutoComplete();
+
+        mSignUpButton = (Button) findViewById(R.id.email_sign_in_button);
+        mSignUpButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -153,21 +160,33 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String username = mUsernameView.getText().toString().trim();
+        String password = mPasswordView.getText().toString().trim();
+        String email = mEmailView.getText().toString().trim();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        // Check for username filled
+        if (TextUtils.isEmpty(username)) {
+            mUsernameView.setError(getString(R.string.error_field_required));
+            focusView = mUsernameView;
+            cancel = true;
+        }
+
+        // Check for a valid password
+        else if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        } else if (!isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        else if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
@@ -177,7 +196,13 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
             cancel = true;
         }
 
-        if (cancel) {
+        else if (!isEmailValid(email)) {
+            mEmailView.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailView;
+            cancel = true;
+        }
+
+        else if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
@@ -185,9 +210,26 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
+
+
+
+
             mAuthTask = new UserLoginTask(email, password);
+
+
+
+
+
+
+
+
             mAuthTask.execute((Void) null);
         }
+    }
+
+    private boolean isPasswordValid(String password) {
+        //TODO: Replace this with your own logic
+        return password.length() > 4;
     }
 
     private boolean isEmailValid(String email) {
@@ -195,10 +237,7 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         return email.contains("@");
     }
 
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
-    }
+
 
     /**
      * Shows the progress UI and hides the login form.
@@ -347,4 +386,3 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         }
     }
 }
-

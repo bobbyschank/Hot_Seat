@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "475389548450",
+    "firebase_url": "https://hot-seat-28ddb.firebaseio.com",
+    "project_id": "hot-seat-28ddb",
+    "storage_bucket": "hot-seat-28ddb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:475389548450:android:a05feb1885e885c2",
+        "android_client_info": {
+          "package_name": "com.example.bobby.hotseat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "475389548450-fgoc51u7lg3acru45o0ro0oe6uru5qe1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bobby.hotseat",
+            "certificate_hash": "6504F6BAC10AB400B56C121373670C358742855E"
+          }
+        },
+        {
+          "client_id": "475389548450-a617dorkdva9vqro5jmdu5lllac59vlb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDezVQYuxnEn0N-GL7WiLuNyNn8njiiZ8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "475389548450-a617dorkdva9vqro5jmdu5lllac59vlb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
