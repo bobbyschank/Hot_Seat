@@ -7,7 +7,6 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -34,10 +33,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -52,14 +48,20 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
+
+
 
 /**
  * A login screen that offers login via email/password.
@@ -97,6 +99,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // Firebase
     Firebase mRef;
+    private DatabaseReference mDatabase;
+    static GoogleSignInAccount acct;
+
+
+
 
     // Google Sign In
     SignInButton mGoogleSignInButton;
@@ -106,6 +113,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final int RC_GOOGLE_SIGN_IN = 9001;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private HotSeatUser databaseHotSeatUser;
+    Boolean authWithGoogleComplete = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,33 +123,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
 
         // Google Sign in
-        mAuth = FirebaseAuth.getInstance();
-
-
-            mAuthListener = new FirebaseAuth.AuthStateListener() {
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    FirebaseUser user = firebaseAuth.getCurrentUser();
-                    if (user != null) {
-                        // User is signed in
-                        Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-
-
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-
-
-                    } else {
-                        // User is signed out
-                        Log.d(TAG, "onAuthStateChanged:signed_out");
-                    }
-                    // ...
-                }
-            };
-            // ...
-
         // Configure sign-in to request the user's ID, email address, and basic profile. ID and
 // basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -165,6 +147,41 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    if (authWithGoogleComplete && isNewUser(user)) { // Create and save new User object to database
+
+                        Log.d(TAG, "CREATING AND WRITING NEW USER");
+                        HotSeatUser hotSeatUser = createNewUser(user);
+                        writeNewUser(hotSeatUser);
+
+                    } else {
+                        Log.d(TAG, "USER EXISTS");
+                    }
+
+                    // Go to main activity
+                    navigateToMainActivity();
+
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                authWithGoogleComplete = false;
+            }
+        };
+
+
+
         mGoogleSignOutButton = (Button) findViewById(R.id.googleSignOutButton);
         mGoogleSignOutButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -177,16 +194,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
 
-        // Set up the login form.
 
+        // Set up the login form.
         mUsernameView = (AutoCompleteTextView) findViewById(R.id.usernameField);
         populateAutoComplete();
-
         mUsernameView.setSingleLine();
         mUsernameView.setImeOptions(EditorInfo.IME_ACTION_NEXT); // TODO: WON'T WORK!
 
         mPasswordView = (EditText) findViewById(R.id.passwordField);
-
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -199,7 +214,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         });
 
         Button mLogInButton = (Button) findViewById(R.id.LogInButton);
-
         mLogInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -207,9 +221,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-
         mSignUpTextView = (TextView) findViewById(R.id.signUpTextView);
-
         mSignUpTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -220,6 +232,42 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    private void navigateToMainActivity(){
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private boolean isNewUser(FirebaseUser firebaseUser){
+
+        final String currentId = firebaseUser.getUid();
+        Log.d(TAG, "CURRENT ID:    " + currentId);
+
+        mDatabase.child(FirebaseConstants.KEY_USERS).child(currentId).addValueEventListener(
+                new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        databaseHotSeatUser = dataSnapshot.getValue(HotSeatUser.class);
+                        Log.d(TAG, "DATABASE ID:    " + databaseHotSeatUser);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        // TODO
+                        Log.d(TAG, "IS NEW USER METHOD: CHILD EVENT LISTENER: ON CANCELLED");
+                    }
+                });
+
+        // Log.d(TAG, "DATABASEHOTSEATUSER ID:::::::: " + databaseHotSeatUser.getIdToken());
+        if (databaseHotSeatUser == null) { // New HotSeatUser
+
+            return true;
+        }
+        else { return false;} // HotSeatUser is in database
     }
 
     private void googleSignIn() {
@@ -239,18 +287,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
-        setProgressBarIndeterminateVisibility(false);
-        Log.d(TAG, "handleSignInResult:" + result.isSuccess());
+        Log.d(TAG, "handleSignInResult: " + result.isSuccess());
         if (result.isSuccess()) {
-            // Signed in successfully, show authenticated UI. Go to MainActivity
-            GoogleSignInAccount acct = result.getSignInAccount();
+            // Signed in successfully, show authenticated UI.
+            acct = result.getSignInAccount();
             firebaseAuthWithGoogle(acct);
             googleStatusTextView.setText("Hello, " + acct.getDisplayName());
-
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
 
             // updateUI(true);
         } else {
@@ -258,12 +300,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             builder.setMessage(R.string.login_error_message)
                     .setTitle(R.string.login_error_title)
                     .setPositiveButton(android.R.string.ok, null);
-                AlertDialog dialog = builder.create();
-                dialog.show();
+            AlertDialog dialog = builder.create();
+            dialog.show();
 
             // updateUI(false);
         }
     }
+
+    private HotSeatUser createNewUser(FirebaseUser firebaseUser) {
+        HotSeatUser user = new HotSeatUser();
+        user.setIdToken(firebaseUser.getUid());
+        user.setEmail(firebaseUser.getEmail());
+        user.setDisplayName(firebaseUser.getDisplayName());
+
+        return user;
+    }
+
+    private void writeNewUser(HotSeatUser user) {
+
+        mDatabase.child(FirebaseConstants.KEY_USERS).child(user.getIdToken()).setValue(user);
+    }
+
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
@@ -273,11 +330,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        setProgressBarIndeterminateVisibility(false);
                         Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
 
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
+
+
+
+
+                        authWithGoogleComplete = true;
+
+
+
+
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
@@ -287,6 +354,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     }
                 });
     }
+
+
+
+
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {

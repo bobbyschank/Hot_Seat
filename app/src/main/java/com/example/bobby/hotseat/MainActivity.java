@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -34,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mDisplayName;
 
+
+    FirebaseAuth mAuth;
+    Firebase mRef;
 
 
 
@@ -52,28 +56,34 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
-    private FirebaseAuth.AuthStateListener mAuthListener;
 
+
+
+
+
+    FirebaseAuth.AuthStateListener mAuthListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mDisplayName = (TextView) findViewById(R.id.displayNameView);
+        mDisplayName.setText("HELLLLLOOOO");
 
-        Log.d(TAG, "We are in Main Activity On Create");
+        mAuth = FirebaseAuth.getInstance();
+
+        Log.d(TAG, "We are in Main Activity, On Create");
+
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
+                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                if (firebaseUser != null) {
                     // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    Log.d(TAG, "We are in Main Activity" + user.getUid());
-                    String displayName = user.getDisplayName();
-                    Log.d(TAG, "USER" + displayName);
-                    mDisplayName.setText(displayName);
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseUser.getUid());
+                    String displayName = firebaseUser.getDisplayName();
+                    //setDisplayName(firebaseUser);
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -83,13 +93,10 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+
+        Log.d(TAG, "Action");
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -99,25 +106,37 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
 
 
 
-        //String displayName = user.getDisplayName();
-        //Log.d(TAG, "USER" + displayName);
-        //mDisplayName.setText(displayName);
+    }
 
+/*
+    private boolean loggedIn() {
+        FirebaseUser user = mFirebaseAuth.getCurrentUser();
+        if (user == null) {
+            // User is signed out
+            Log.d(TAG, "onAuthStateChanged:signed_out");
+            navigateToLogin();
+            return false;
+        } else {
+            // User is signed in
+            Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+            Log.d(TAG, "USER.GETUID: " + user.getUid());
+            String displayName = user.getDisplayName();
+            Log.d(TAG, "USER DISPLAY NAME: " + displayName);
+            mDisplayName.setText(displayName);
+            return true;
+        }
+    }
+*/
 
-
+    private void setDisplayName(FirebaseUser firebaseUser) {
+        mDisplayName.setText("HEY PAPI");
     }
 
     private void navigateToLogin() {
@@ -127,6 +146,20 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com");
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -144,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (id == R.id.action_log_out) {
             FirebaseAuth.getInstance().signOut();
-            navigateToLogin();
+            // navigateToLogin();
             return true;
         }
 
