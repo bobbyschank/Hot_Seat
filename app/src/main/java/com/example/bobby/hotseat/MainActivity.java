@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mDisplayName = (TextView) findViewById(R.id.displayNameView);
-        mDisplayName.setText("HELLLLLOOOO");
+        // mDisplayName.setText("HELLLLLOOOO");
 
         mAuth = FirebaseAuth.getInstance();
 
