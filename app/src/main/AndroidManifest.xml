@@ -42,12 +42,14 @@
         <activity
             android:name=".EditFriendsActivity"
             android:label="@string/title_activity_edit_friends"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.example.bobby.hotseat.LoginActivity"/>
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.bobby.hotseat.LoginActivity"/>
+        </activity>
+        <activity android:name=".AddFriendActivity">
         </activity>
     </application>
 
