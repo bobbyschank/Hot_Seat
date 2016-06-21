@@ -9,4 +9,6 @@ public final class FirebaseConstants {
     // Field Name
 
     public static final String KEY_USERNAME = "username";
+    public static final String KEY_USERS = "users";
+    public static final String KEY_idToken = "idToken";
 }

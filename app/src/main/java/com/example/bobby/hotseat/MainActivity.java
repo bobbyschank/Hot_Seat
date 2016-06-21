@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,6 +26,7 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -34,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mDisplayName;
 
+
+    FirebaseAuth mAuth;
+    Firebase mRef;
 
 
 
@@ -52,28 +57,33 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
-    private FirebaseAuth.AuthStateListener mAuthListener;
 
+
+
+
+
+    FirebaseAuth.AuthStateListener mAuthListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mDisplayName = (TextView) findViewById(R.id.displayNameView);
+        // mDisplayName.setText("HELLLLLOOOO");
 
-        Log.d(TAG, "We are in Main Activity On Create");
+        mAuth = FirebaseAuth.getInstance();
+
+        Log.d(TAG, "We are in Main Activity, On Create");
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
+                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                if (firebaseUser != null) {
                     // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    Log.d(TAG, "We are in Main Activity" + user.getUid());
-                    String displayName = user.getDisplayName();
-                    Log.d(TAG, "USER" + displayName);
-                    mDisplayName.setText(displayName);
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseUser.getUid());
+                    String displayName = firebaseUser.getDisplayName();
+                    //setDisplayName(firebaseUser);
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -83,13 +93,9 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        Log.d(TAG, "Action");
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -99,25 +105,16 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
+
+    }
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-
-
-        //String displayName = user.getDisplayName();
-        //Log.d(TAG, "USER" + displayName);
-        //mDisplayName.setText(displayName);
-
-
-
+    private void setDisplayName(FirebaseUser firebaseUser) {
+        mDisplayName.setText("THIS USER");
     }
 
     private void navigateToLogin() {
@@ -127,6 +124,20 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com");
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -140,48 +151,25 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        if (id == R.id.action_log_out) {
-            FirebaseAuth.getInstance().signOut();
-            navigateToLogin();
-            return true;
-        }
+        switch (item.getItemId()) {
 
-        else if (id == R.id.action_edit_friends) {
-            Intent intent = new Intent(this, EditFriendsActivity.class);
-            startActivity(intent);
-            return true;
-        }
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+            case R.id.action_log_out:
+                FirebaseAuth.getInstance().signOut();
+                return true;
+            case R.id.action_edit_friends:
+                Intent intent = new Intent(this, EditFriendsActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.action_settings:
+                return true;
+            default: {};
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-/*
-    @Override
-    public void onTabSelected(ActionBar.Tab tab,
-                                FragmentTransaction fragmentTransaction) {
-        mViewPager.setCurrentItem(tab.getPosition());
-
-    }
-
-
-
-    @Override
-    public void onTabUnselected(Actionbar.Tab tab,
-                                FragmentTransaction fragmentTransaction) {
-
-    }
-
-    @Override
-    public void onTabReselected(Actionbar.Tab tab,
-                                FragmentTransaction fragmentTransaction) {
-
-    }
-    */
 }
