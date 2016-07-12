@@ -94,7 +94,7 @@ public class LoginActivity
     private static final int RC_GOOGLE_SIGN_IN = 9001;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private HotSeatUser databaseHotSeatUser = null;
+    private HSUser databaseHotSeatUser = null;
     private boolean newUser = false;
 
     @Override
@@ -142,8 +142,8 @@ public class LoginActivity
                     if (isNewUser) { // Create and save new User object to database
 
                         Log.d(TAG, "CREATING AND WRITING NEW USER");
-                        HotSeatUser hotSeatUser = createNewUser(firebaseUser);
-                        writeNewUser(hotSeatUser);
+                        HSUser hSUser = createNewUser(firebaseUser);
+                        writeNewUser(hSUser);
 
                     } else {
                         Log.d(TAG, "USER EXISTS");
@@ -224,7 +224,7 @@ public class LoginActivity
 
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        databaseHotSeatUser = dataSnapshot.getValue(HotSeatUser.class);
+                        databaseHotSeatUser = dataSnapshot.getValue(HSUser.class);
                         Log.d(TAG, "DATABASE ID:    XX" + databaseHotSeatUser);
                         if (databaseHotSeatUser == null) {
                             newUser = true;
@@ -241,17 +241,17 @@ public class LoginActivity
         return newUser;
     }
 
-    private HotSeatUser createNewUser(FirebaseUser firebaseUser) {
-        HotSeatUser hotSeatUser = new HotSeatUser(firebaseUser.getUid(),
+    private HSUser createNewUser(FirebaseUser firebaseUser) {
+        HSUser hSUser = new HSUser(firebaseUser.getUid(),
                                                   firebaseUser.getDisplayName(),
                                                   firebaseUser.getEmail());
-        hotSeatUser.addFriend(firebaseUser.getUid(), firebaseUser.getDisplayName());
-        return hotSeatUser;
+        hSUser.addFriend(firebaseUser.getUid(), firebaseUser.getDisplayName());
+        return hSUser;
     }
 
-    private void writeNewUser(HotSeatUser hotSeatUser) {
+    private void writeNewUser(HSUser hSUser) {
 
-        mDatabase.child(Strings.KEY_USERS).child(hotSeatUser.getIdToken()).setValue(hotSeatUser);
+        mDatabase.child(Strings.KEY_USERS).child(hSUser.getIdToken()).setValue(hSUser);
 
     }
 

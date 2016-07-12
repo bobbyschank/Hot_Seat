@@ -64,11 +64,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        Intent intent = getIntent();
-
         mDisplayName = (TextView) findViewById(R.id.displayNameView);
-        // mDisplayName.setText("HELLLLLOOOO");
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -138,10 +134,10 @@ public class MainActivity extends AppCompatActivity {
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "onChildAdded\n");
-                HotSeatUser email = dataSnapshot.getValue(HotSeatUser.class);
-                Log.d(TAG, "onChildAdded:" + email);
-                //if (email == friendEmail) {Log.d(TAG, "MATCH!!!!!" + email);}
+                Log.d(TAG, "onChildAdded\n\n");
+                HSUser hSUser = dataSnapshot.getValue(HSUser.class);
+                Log.d(TAG, "onChildAdded:" + hSUser);
+                //if (hSUser == friendEmail) {Log.d(TAG, "MATCH!!!!!" + hSUser);}
 
                 // Comment comment = dataSnapshot.getValue(Comment.class);
             }
