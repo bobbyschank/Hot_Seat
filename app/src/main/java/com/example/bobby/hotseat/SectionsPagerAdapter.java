@@ -34,6 +34,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 return new InboxFragment();
             case 1:
                 return new FriendsFragment();
+            case 2:
         }
         return null;
     }

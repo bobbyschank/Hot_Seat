@@ -7,6 +7,13 @@
         android:orderInCategory="100"
         android:title="@string/menu_logout_label"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_add_friends"
+        android:orderInCategory="100"
+        android:title="@string/menu_add_friends_label"
+        app:showAsAction="never"/>
+
     <item
         android:id="@+id/action_edit_friends"
         android:orderInCategory="100"

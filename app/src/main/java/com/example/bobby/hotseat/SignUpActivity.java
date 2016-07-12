@@ -86,7 +86,7 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
             }
         });
 
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.emailField);
+        mEmailView = (AutoCompleteTextView) findViewById(R.id.findByEmailField);
         populateAutoComplete();
 
         mSignUpButton = (Button) findViewById(R.id.email_sign_in_button);
