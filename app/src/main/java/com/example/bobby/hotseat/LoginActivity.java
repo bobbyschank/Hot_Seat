@@ -1,32 +1,15 @@
 package com.example.bobby.hotseat;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -55,12 +38,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static android.Manifest.permission.READ_CONTACTS;
-
 
 
 /**
@@ -109,8 +86,6 @@ public class LoginActivity
     static GoogleSignInAccount acct;
 
 
-
-
     // Google Sign In
     SignInButton mGoogleSignInButton;
     Button mGoogleSignOutButton;
@@ -119,8 +94,8 @@ public class LoginActivity
     private static final int RC_GOOGLE_SIGN_IN = 9001;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private HotSeatUser databaseHotSeatUser;
-    Boolean authWithGoogleComplete = false;
+    private HotSeatUser databaseHotSeatUser = null;
+    private boolean newUser = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,37 +131,31 @@ public class LoginActivity
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-
-
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
+                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                if (firebaseUser != null) {
                     // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    if (authWithGoogleComplete && isNewUser(user)) { // Create and save new User object to database
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseUser.getUid());
+                    boolean isNewUser = isNewUser(firebaseUser);
+                    if (isNewUser) { // Create and save new User object to database
 
                         Log.d(TAG, "CREATING AND WRITING NEW USER");
-                        HotSeatUser hotSeatUser = createNewUser(user);
+                        HotSeatUser hotSeatUser = createNewUser(firebaseUser);
                         writeNewUser(hotSeatUser);
 
                     } else {
                         Log.d(TAG, "USER EXISTS");
                     }
 
-                    // Go to main activity
                     navigateToMainActivity();
 
                 } else {
-                    // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
-                authWithGoogleComplete = false;
             }
         };
-
-
 
         mGoogleSignOutButton = (Button) findViewById(R.id.googleSignOutButton);
         mGoogleSignOutButton.setOnClickListener(new OnClickListener() {
@@ -195,11 +164,6 @@ public class LoginActivity
                 googleSignOut();
             }
         });
-
-
-
-
-
 
         // Set up the login form.
 
@@ -255,13 +219,16 @@ public class LoginActivity
         final String currentId = firebaseUser.getUid();
         Log.d(TAG, "CURRENT ID:    " + currentId);
 
-        mDatabase.child(FirebaseConstants.KEY_USERS).child(currentId).addValueEventListener(
+        mDatabase.child(Strings.KEY_USERS).child(currentId).addValueEventListener(
                 new ValueEventListener() {
 
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         databaseHotSeatUser = dataSnapshot.getValue(HotSeatUser.class);
-                        Log.d(TAG, "DATABASE ID:    " + databaseHotSeatUser);
+                        Log.d(TAG, "DATABASE ID:    XX" + databaseHotSeatUser);
+                        if (databaseHotSeatUser == null) {
+                            newUser = true;
+                        }
                     }
 
                     @Override
@@ -271,12 +238,21 @@ public class LoginActivity
                     }
                 });
 
-        // Log.d(TAG, "DATABASEHOTSEATUSER ID:::::::: " + databaseHotSeatUser.getIdToken());
-        if (databaseHotSeatUser == null) { // New HotSeatUser
+        return newUser;
+    }
 
-            return true;
-        }
-        else { return false;} // HotSeatUser is in database
+    private HotSeatUser createNewUser(FirebaseUser firebaseUser) {
+        HotSeatUser hotSeatUser = new HotSeatUser(firebaseUser.getUid(),
+                                                  firebaseUser.getDisplayName(),
+                                                  firebaseUser.getEmail());
+        hotSeatUser.addFriend(firebaseUser.getUid(), firebaseUser.getDisplayName());
+        return hotSeatUser;
+    }
+
+    private void writeNewUser(HotSeatUser hotSeatUser) {
+
+        mDatabase.child(Strings.KEY_USERS).child(hotSeatUser.getIdToken()).setValue(hotSeatUser);
+
     }
 
     private void googleSignIn() {
@@ -316,21 +292,6 @@ public class LoginActivity
         }
     }
 
-    private HotSeatUser createNewUser(FirebaseUser firebaseUser) {
-        HotSeatUser user = new HotSeatUser();
-        user.setIdToken(firebaseUser.getUid());
-        user.setEmail(firebaseUser.getEmail());
-        user.setDisplayName(firebaseUser.getDisplayName());
-
-        return user;
-    }
-
-    private void writeNewUser(HotSeatUser user) {
-
-        mDatabase.child(FirebaseConstants.KEY_USERS).child(user.getIdToken()).setValue(user);
-    }
-
-
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
@@ -346,14 +307,6 @@ public class LoginActivity
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
 
-
-
-
-                        authWithGoogleComplete = true;
-
-
-
-
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
@@ -363,9 +316,6 @@ public class LoginActivity
                     }
                 });
     }
-
-
-
 
 
     @Override

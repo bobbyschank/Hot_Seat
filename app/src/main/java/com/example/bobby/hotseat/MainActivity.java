@@ -2,33 +2,28 @@ package com.example.bobby.hotseat;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 import android.widget.TextView;
 
 import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
     Firebase mRef;
+    private DatabaseReference mDatabase;
+
+    private String userID;
 
 
 
@@ -60,13 +58,14 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
     FirebaseAuth.AuthStateListener mAuthListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        Intent intent = getIntent();
 
         mDisplayName = (TextView) findViewById(R.id.displayNameView);
         // mDisplayName.setText("HELLLLLOOOO");
@@ -81,7 +80,9 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser != null) {
                     // User is signed in
+                    userID = firebaseUser.getUid();
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseUser.getUid());
+
                     String displayName = firebaseUser.getDisplayName();
                     //setDisplayName(firebaseUser);
                 } else {
@@ -92,8 +93,6 @@ public class MainActivity extends AppCompatActivity {
                 // ...
             }
         };
-
-
 
         Log.d(TAG, "Action");
 
@@ -112,6 +111,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void findEmail() {
+
+
+    }
 
     private void setDisplayName(FirebaseUser firebaseUser) {
         mDisplayName.setText("THIS USER");
@@ -128,7 +131,45 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com");
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth.addAuthStateListener(mAuthListener);
+
+
+        ChildEventListener childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "onChildAdded\n");
+                HotSeatUser email = dataSnapshot.getValue(HotSeatUser.class);
+                Log.d(TAG, "onChildAdded:" + email);
+                //if (email == friendEmail) {Log.d(TAG, "MATCH!!!!!" + email);}
+
+                // Comment comment = dataSnapshot.getValue(Comment.class);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "Cancelled.");
+            }
+
+        };
+        mDatabase.child(Strings.KEY_USERS).addChildEventListener(childEventListener);
+
+
     }
 
     @Override
@@ -158,13 +199,21 @@ public class MainActivity extends AppCompatActivity {
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
 
-            case R.id.action_log_out:
+            case R.id.action_log_out:{
                 FirebaseAuth.getInstance().signOut();
-                return true;
-            case R.id.action_edit_friends:
+                return true;}
+
+            case R.id.action_add_friends:{
+                Intent intent = new Intent(this, AddFriendActivity.class);
+                intent.putExtra(Strings.KEY_USERID, userID);
+                startActivity(intent);
+                return true;}
+
+            case R.id.action_edit_friends:{
                 Intent intent = new Intent(this, EditFriendsActivity.class);
                 startActivity(intent);
-                return true;
+                return true;}
+
             case R.id.action_settings:
                 return true;
             default: {};

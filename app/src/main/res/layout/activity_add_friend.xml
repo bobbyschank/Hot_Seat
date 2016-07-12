@@ -18,7 +18,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:singleLine="true"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:text="@string/find_friend_by_label" />
 
     <EditText
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
         android:ems="10"
-        android:id="@+id/editText"
+        android:id="@+id/findByEmailField"
         android:hint="@string/prompt_email"
         android:layout_below="@+id/findFriendByTextView"
         android:layout_alignParentLeft="true"
@@ -37,7 +37,15 @@
         android:layout_height="wrap_content"
         android:text="@string/find_button"
         android:id="@+id/findByEmailButton"
-        android:layout_alignTop="@+id/editText"
+        android:layout_alignTop="@+id/findByEmailField"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"/>
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/friendsListView"
+        android:layout_below="@+id/findByEmailButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
 </RelativeLayout>

@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.bobby.hotseat"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -37,6 +37,7 @@ dependencies {
     compile 'com.google.firebase:firebase-auth:9.0.2'
     compile 'com.google.android.gms:play-services-auth:9.0.2'
     compile 'com.google.firebase:firebase-database:9.0.2'
+    compile 'com.firebaseui:firebase-ui:0.3.1'
 
 }
 apply plugin: 'com.google.gms.google-services'

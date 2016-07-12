@@ -37,9 +37,13 @@
     <string name="empty_friends_label">Add friends to begin!</string>
     <string name="menu_edit_friends_label">Edit Friends</string>
     <string name="title_activity_edit_friends">Edit Friends</string>
-    <string name="error_message">We\\\'re Sorry!</string>
+    <string name="error_message">We\'re Sorry!</string>
+
+    <string name="friend_email_not_found">We\'re Sorry, This email is not in our database.</string>
+
     <string name="error_title">Error</string>
     <string name="find_friend_by_label">Find Friend By:</string>
     <string name="find_button">Find!</string>
+    <string name="menu_add_friends_label">Add Friends</string>
 
 </resources>
