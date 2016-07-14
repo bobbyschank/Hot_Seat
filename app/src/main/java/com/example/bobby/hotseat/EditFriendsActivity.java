@@ -21,7 +21,7 @@ public class EditFriendsActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    protected List<HotSeatUser> mHotSeatUsers;
+    protected List<HSUser> mHSUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +64,7 @@ public class EditFriendsActivity extends AppCompatActivity {
         super.onResume();
         // Query for friends in firebase, order by ascending, setLimit, findInBackground.
 
-        // mHotSeatUsers = hotSeatUsers;
+        // mHSUsers = hotSeatUsers;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(EditFriendsActivity.this);
         builder.setMessage(R.string.error_message)
