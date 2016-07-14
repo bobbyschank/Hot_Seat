@@ -45,5 +45,6 @@
     <string name="find_friend_by_label">Find Friend By:</string>
     <string name="find_button">Find!</string>
     <string name="menu_add_friends_label">Add Friends</string>
+    <string name="friend_added">has been added!</string>
 
 </resources>

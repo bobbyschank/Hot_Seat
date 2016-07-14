@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String userID;
 
+    public static HSUser currentUser;
+
 
 
     /**
@@ -80,7 +82,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseUser.getUid());
 
                     String displayName = firebaseUser.getDisplayName();
+                    String email = firebaseUser.getEmail();
                     //setDisplayName(firebaseUser);
+
+                    currentUser = new HSUser(userID, displayName, email);
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");

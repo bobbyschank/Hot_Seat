@@ -1,6 +1,7 @@
 package com.example.bobby.hotseat;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.Firebase;
 
@@ -39,12 +41,15 @@ public class AddFriendActivity extends AppCompatActivity {
     private String userID;
     //private HashMap<String, String> mFriends = new HashMap<>();
     private Map<String, String> mFriendsHash = new HashMap<>();
+    Boolean match = false;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_friend);
 
+        context = getApplicationContext();
 
         Intent intent = getIntent();
         userID = intent.getStringExtra(Strings.KEY_USERID);
@@ -107,11 +112,12 @@ public class AddFriendActivity extends AppCompatActivity {
     }
 
     private void findFriendByEmail(final String friendEmail) {
+
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d(TAG, "FIND    FRIEND \n\n");
-                String email = dataSnapshot.child("email").getValue(String.class);
+                String email = dataSnapshot.child("email").getValue(String.class).trim();
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.child("email").getValue(String.class));
                 if (email.equalsIgnoreCase(friendEmail)) {
                     Log.d(TAG, "MATCH!!!!!" + email);
@@ -120,18 +126,19 @@ public class AddFriendActivity extends AppCompatActivity {
 
                     mFriendsHash.put(idToken, displayName);
 
-                    mDatabase.child(Strings.KEY_USERS).child(userID).child(Strings.KEY_FRIENDSHASH).setValue(mFriendsHash);
+                    mDatabase.child(Strings.KEY_USERS)
+                            .child(userID)
+                            .child(Strings.KEY_FRIENDSHASH)
+                            .setValue(mFriendsHash);
+                    match = true;
+
+                    CharSequence text = getString(R.string.friend_added);
+
+                    Toast.makeText(context, displayName + " " + text, Toast.LENGTH_SHORT).show();
+
 
                 }
-                else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(AddFriendActivity.this);
-                    builder.setMessage(R.string.friend_email_not_found)
-                            .setTitle(R.string.error_title)
-                            .setPositiveButton(android.R.string.ok, null);
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                    //TODO Send invite to entered email
-                }
+
             }
 
             @Override
@@ -156,5 +163,15 @@ public class AddFriendActivity extends AppCompatActivity {
 
         };
         mDatabase.child(Strings.KEY_USERS).addChildEventListener(childEventListener);
+        int i = 0;
+        if (match == false) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(AddFriendActivity.this);
+            builder.setMessage(R.string.friend_email_not_found)
+                    .setTitle(R.string.error_title)
+                    .setPositiveButton(android.R.string.ok, null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+            //TODO Send invite to entered email
+        }
     }
 }
