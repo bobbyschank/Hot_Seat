@@ -33,15 +33,16 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             case 0:
                 return new InboxFragment();
             case 1:
-                return new FriendsFragment();
+                return new ChooseFragment();
             case 2:
+                return new FriendsFragment();
         }
         return null;
     }
 
     @Override
     public int getCount() {
-        return 2;
+        return 3;
     }
 
     @Override
@@ -50,6 +51,8 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             case 0:
                 return mContext.getString(R.string.title_section_inbox);
             case 1:
+                return mContext.getString(R.string.title_section_choose);
+            case 2:
                 return mContext.getString(R.string.title_section_friends);
         }
         return null;

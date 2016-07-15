@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import android.view.View;
 import android.widget.TextView;
 
 import com.firebase.client.Firebase;
@@ -40,8 +41,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static HSUser currentUser;
 
-
-
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -55,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
+
     private ViewPager mViewPager;
 
 
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mDisplayName = (TextView) findViewById(R.id.displayNameView);
+
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -127,6 +128,22 @@ public class MainActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
+
+    public void navigateToMessage(View v) {
+        Intent intent = new Intent(MainActivity.this, MessageActivity.class);
+        startActivity(intent);
+    }
+
+    public void navigateToCamera(View v) {
+        Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+        startActivity(intent);
+    }
+
+    public void navigateToVideo(View v) {
+        Intent intent = new Intent(MainActivity.this, VideoActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     protected void onStart() {
