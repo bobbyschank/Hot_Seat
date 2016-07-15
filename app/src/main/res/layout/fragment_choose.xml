@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="com.example.bobby.hotseat.ChooseFragment"
+                android:background="@color/colorBackgroundGrey">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/choose_sponse_format"
+        android:id="@+id/textView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textColor="#ffffff"
+        android:padding="10dp"/>
+
+    <ImageButton
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:id="@+id/cameraButton"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:src="@mipmap/ic_photo_camera_white_48dp"
+        android:background="@color/colorBackgroundGrey"
+        android:scaleType="fitXY"
+        android:onClick="navigateToCamera"/>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="70dp"
+        android:id="@+id/messageButton"
+        android:layout_alignTop="@+id/cameraButton"
+        android:layout_toLeftOf="@+id/cameraButton"
+        android:layout_toStartOf="@+id/cameraButton"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:src="@mipmap/ic_message_white_48dp"
+        android:foregroundGravity="clip_horizontal"
+        android:background="@color/colorBackgroundGrey" android:clickable="true"
+        android:nestedScrollingEnabled="false"
+        android:onClick="navigateToMessage"/>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="70dp"
+        android:id="@+id/videoButton"
+        android:layout_alignTop="@+id/cameraButton"
+        android:layout_toRightOf="@+id/cameraButton"
+        android:layout_toEndOf="@+id/cameraButton"
+        android:src="@mipmap/ic_videocam_white_48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:background="@color/colorBackgroundGrey"
+        android:layout_alignBottom="@+id/cameraButton"
+        android:scaleType="fitCenter"
+        android:onClick="navigateToVideo"/>
+
+</RelativeLayout>

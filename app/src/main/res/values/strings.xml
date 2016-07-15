@@ -25,14 +25,16 @@
 
     <!-- Strings related to Google Login -->
     <string name="google_signed_out">Signed Out</string>
-    <string name="google_greeting">Hello, </string>
+    <string name="google_greeting">Hello,</string>
     <string name="login_error_title">Problem Signing In</string>
     <string name="login_error_message">Sign in failed.</string>
     <string name="menu_logout_label">Log out</string>
 
     <!-- Fragments -->
     <string name="title_section_inbox">Inbox</string>
+    <string name="title_section_choose">\'Sponse Sombody</string>
     <string name="title_section_friends">Friends</string>
+
     <string name="empty_inbox_label">No new messages</string>
     <string name="empty_friends_label">Add friends to begin!</string>
     <string name="menu_edit_friends_label">Edit Friends</string>
@@ -46,5 +48,12 @@
     <string name="find_button">Find!</string>
     <string name="menu_add_friends_label">Add Friends</string>
     <string name="friend_added">has been added!</string>
+    <string name="choose_sponse_format">Choose Format</string>
+
+    <string-array name="sponse_choices">
+        <item>Send Message</item>
+        <item>Send Photo</item>
+        <item>Send Video</item>
+    </string-array>
 
 </resources>
