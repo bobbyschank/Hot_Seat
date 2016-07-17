@@ -1,6 +1,7 @@
 package com.example.bobby.hotseat;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.NavUtils;
@@ -29,6 +30,12 @@ import com.google.firebase.database.FirebaseDatabase;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final int TAKE_PHOTO_REQUEST = 0;
+    public static final int TAKE_VIDEO_REQUEST = 1;
+
+    public static final int MEDIA_TYPE_IMAGE = 2;
+    public static final int MEDIA_TYPE_VIDEO = 3;
 
     private TextView mDisplayName;
 
@@ -135,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void navigateToCamera(View v) {
-        Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+        Intent intent = new Intent(MainActivity.this, PhotoActivity.class);
         startActivity(intent);
     }
 

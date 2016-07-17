@@ -1,5 +1,6 @@
 package com.example.bobby.hotseat;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -30,7 +31,7 @@ import java.util.List;
  */
 public class FriendsFragment extends ListFragment{
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = FriendsFragment.class.getSimpleName();
 
     protected String mCurrentUser;
     protected List<String> mFriends;
@@ -84,7 +85,8 @@ public class FriendsFragment extends ListFragment{
 
         FirebaseListAdapter<String> adapter =
                 new FirebaseListAdapter<String>(getActivity(), String.class,
-                                            R.layout.friend_list_item,
+                                            android.R.layout.simple_list_item_checked,
+                                            //R.layout.friend_list_item,
                                             friendsRef.orderByValue()) {
                     int i = 0;
             @Override
@@ -93,10 +95,17 @@ public class FriendsFragment extends ListFragment{
             }
         };
 
-        setListAdapter(adapter);
-
+        if (adapter != null) {
+            setListAdapter(adapter);
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.error_message)
+                    .setTitle(R.string.error_title)
+                    .setPositiveButton(android.R.string.ok, null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
         //mFriendsListView.setAdapter(adapter);
-
 
     }
 

@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class AddFriendActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = AddFriendActivity.class.getSimpleName();
 
     Button mFindByEmailButton;
     TextView mEmailField;

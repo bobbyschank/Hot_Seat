@@ -19,7 +19,7 @@ import java.util.List;
 
 public class EditFriendsActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = EditFriendsActivity.class.getSimpleName();
 
     protected List<HSUser> mHSUsers;
 

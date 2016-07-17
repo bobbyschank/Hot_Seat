@@ -7,6 +7,12 @@
     <uses-permission android:name="android.permission.READ_PROFILE"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true"/>
 
     <application
         android:name=".HotSeatApplication"
@@ -53,9 +59,11 @@
         </activity>
         <activity android:name=".MessageActivity">
         </activity>
-        <activity android:name=".CameraActivity">
+        <activity android:name=".PhotoActivity">
         </activity>
         <activity android:name=".VideoActivity">
+        </activity>
+        <activity android:name=".RecipientsActivity">
         </activity>
     </application>
 

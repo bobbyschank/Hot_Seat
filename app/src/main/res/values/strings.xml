@@ -39,7 +39,7 @@
     <string name="empty_friends_label">Add friends to begin!</string>
     <string name="menu_edit_friends_label">Edit Friends</string>
     <string name="title_activity_edit_friends">Edit Friends</string>
-    <string name="error_message">We\'re Sorry!</string>
+    <string name="error_message">We\'re Sorry, there was an error!</string>
 
     <string name="friend_email_not_found">We\'re Sorry, This email is not in our database.</string>
 
@@ -49,6 +49,10 @@
     <string name="menu_add_friends_label">Add Friends</string>
     <string name="friend_added">has been added!</string>
     <string name="choose_sponse_format">Choose Format</string>
+    <string name="error_external_storage">There was a problem accessing your device\'s external
+        storage.
+    </string>
+    <string name="general_error">Sorry, there was an error!</string>
 
     <string-array name="sponse_choices">
         <item>Send Message</item>
