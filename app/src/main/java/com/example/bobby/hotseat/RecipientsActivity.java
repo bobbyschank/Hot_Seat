@@ -70,8 +70,5 @@ public class RecipientsActivity extends AppCompatActivity {
             AlertDialog dialog = builder.create();
             dialog.show();
         }
-
-
-
     }
 }

@@ -20,8 +20,7 @@ public class VideoActivity extends AppCompatActivity {
 
     protected Uri mMediaUri;
 
-    int mDurationLimit = 10;
-    int mVideoQuality = 0; // 0 = low, 1 = high
+/*
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,5 +108,6 @@ public class VideoActivity extends AppCompatActivity {
         String state = Environment.getExternalStorageState();
         return state.equals(Environment.MEDIA_MOUNTED);
     }
+    */
 }
 

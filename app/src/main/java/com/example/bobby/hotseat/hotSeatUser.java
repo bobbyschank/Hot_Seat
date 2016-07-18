@@ -6,29 +6,38 @@ import java.util.HashMap;
  * Created by bobby on 6/7/16.
  */
 
-public class hotSeatUser {
+public class HotSeatUser {
 
-    private String mIDToken;
+    private String mIdToken;
     private String mDisplayName;
     private String mEmail;
-    private HashMap<String, String> mFriendsHash;
+    private HashMap<String, Boolean> mFriendsHash;
 
-    public hotSeatUser() {
+    public HotSeatUser() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public hotSeatUser(String iDToken, String name, String email) {
-        mIDToken = iDToken;
+    public HotSeatUser(String idToken, String name, String email) {
+        mIdToken = idToken;
         mDisplayName = name;
         mEmail = email;
+        mFriendsHash = new HashMap<>();
     }
 
-    public String getIDToken() {
-        return mIDToken;
+    public void addFriend(String friendIdToken) {
+        mFriendsHash.put(friendIdToken, true);
     }
 
-    public void setIDToken(String IDToken) {
-        mIDToken = IDToken;
+    public void removeFriend(String friendIdToken) {
+        mFriendsHash.remove(friendIdToken);
+    }
+
+    public String getIdToken() {
+        return mIdToken;
+    }
+
+    public void setIdToken(String midToken) {
+        this.mIdToken = midToken;
     }
 
     public String getDisplayName() {

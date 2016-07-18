@@ -14,4 +14,6 @@ public final class Strings {
     public static final String KEY_USERS = "users";
     public static final String KEY_EMAIL = "email";
     public static final String KEY_idToken = "idToken";
+
+    public static final String KEY_MEDIA = "media";
 }

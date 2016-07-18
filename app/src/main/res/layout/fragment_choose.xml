@@ -28,7 +28,7 @@
         android:src="@mipmap/ic_photo_camera_white_48dp"
         android:background="@color/colorBackgroundGrey"
         android:scaleType="fitXY"
-        android:onClick="navigateToCamera"/>
+        android:onClick="startPhoto"/>
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -41,8 +41,8 @@
         android:layout_alignParentLeft="true"
         android:src="@mipmap/ic_message_white_48dp"
         android:foregroundGravity="clip_horizontal"
-        android:background="@color/colorBackgroundGrey" android:clickable="true"
-        android:nestedScrollingEnabled="false"
+        android:background="@color/colorBackgroundGrey"
+        android:clickable="true"
         android:onClick="navigateToMessage"/>
 
     <ImageButton
@@ -58,6 +58,6 @@
         android:background="@color/colorBackgroundGrey"
         android:layout_alignBottom="@+id/cameraButton"
         android:scaleType="fitCenter"
-        android:onClick="navigateToVideo"/>
+        android:onClick="startVideo"/>
 
 </RelativeLayout>

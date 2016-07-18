@@ -2,6 +2,8 @@ package com.example.bobby.hotseat;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.NavUtils;
@@ -17,6 +19,9 @@ import android.view.MenuItem;
 
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.bobby.hotseat.CameraActivity;
 
 import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,15 +32,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    public static final int TAKE_PHOTO_REQUEST = 0;
-    public static final int TAKE_VIDEO_REQUEST = 1;
-
-    public static final int MEDIA_TYPE_IMAGE = 2;
-    public static final int MEDIA_TYPE_VIDEO = 3;
 
     private TextView mDisplayName;
 
@@ -47,6 +51,17 @@ public class MainActivity extends AppCompatActivity {
     private String userID;
 
     public static HSUser currentUser;
+
+    public static final int TAKE_PHOTO_REQUEST = 0;
+    public static final int TAKE_VIDEO_REQUEST = 1;
+
+    public static final int MEDIA_TYPE_IMAGE = 2;
+    public static final int MEDIA_TYPE_VIDEO = 3;
+
+    int mDurationLimit = 10;
+    int mVideoQuality = 0; // 0 = low, 1 = high
+
+    protected Uri mMediaUri;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -141,13 +156,17 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void navigateToCamera(View v) {
-        Intent intent = new Intent(MainActivity.this, PhotoActivity.class);
-        startActivity(intent);
+    public void startPhoto(View v) {
+        launchPhoto();
     }
 
-    public void navigateToVideo(View v) {
-        Intent intent = new Intent(MainActivity.this, VideoActivity.class);
+    public void startVideo(View v) {
+        launchVideo();
+    }
+
+    private void navigateToCamera(int i) {
+        Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+        intent.putExtra(Strings.KEY_MEDIA, i);
         startActivity(intent);
     }
 
@@ -246,4 +265,112 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void launchPhoto() {
+
+        Intent launchPhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        mMediaUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
+        if (mMediaUri == null) {
+            Toast.makeText(MainActivity.this, R.string.error_external_storage, Toast.LENGTH_SHORT).show();
+        } else {
+            launchPhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mMediaUri);
+            startActivityForResult(launchPhotoIntent, TAKE_PHOTO_REQUEST);
+        }
+
+    }
+
+
+
+
+    public void launchVideo() {
+
+        Intent videoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+
+        videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mMediaUri);
+        videoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, mDurationLimit);
+        videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, mVideoQuality);
+
+        mMediaUri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
+        if (mMediaUri == null) {
+            Toast.makeText(MainActivity.this, R.string.error_external_storage, Toast.LENGTH_SHORT).show();
+        } else {
+            videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mMediaUri);
+            startActivityForResult(videoIntent, TAKE_VIDEO_REQUEST);
+        }
+
+    }
+
+
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            // Add to gallery
+
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            mediaScanIntent.setData(mMediaUri);
+            sendBroadcast(mediaScanIntent);
+
+            // Navigate to recipients Activity
+            Intent recipientsIntent = new Intent(this, RecipientsActivity.class);
+            recipientsIntent.setData(mMediaUri);
+            startActivity(recipientsIntent);
+
+        } else if (resultCode != RESULT_CANCELED) {
+            Toast.makeText(this, R.string.general_error, Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    private Uri getOutputMediaFileUri(int mediaType) {
+        if (isExternalStorageAvailable()) {
+            // Get the external storage directory
+            String appName = MainActivity.this.getString(R.string.app_name);
+            File mediaStorageDir = new File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                    appName);
+
+            // Create our subdirectory
+            if (! mediaStorageDir.exists()) {
+                if (mediaStorageDir.mkdirs()) {
+                    Log.e(TAG, "FAILED TO CREATE DIRECTORY.");
+                    return null;
+                }
+            }
+
+            // Create a file name
+
+            // Create the file
+            File mediaFile;
+            Date now = new Date();
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(now);
+
+            String path = mediaStorageDir.getPath() + File.separator;
+            if (mediaType == MEDIA_TYPE_IMAGE) {
+                mediaFile = new File(path + "IMG_" + timeStamp + ".jpg");
+            }
+            else if (mediaType == MEDIA_TYPE_VIDEO) {
+                mediaFile = new File(path + "VID_" + timeStamp + ".mp4");
+            }
+            else {return null;}
+
+            // Return the file's URI
+
+            Log.d(TAG, "FILE::::" + Uri.fromFile(mediaFile));
+            return Uri.fromFile(mediaFile);
+
+        }
+        else {
+            return null;
+        }
+    }
+
+    private boolean isExternalStorageAvailable() {
+        String state = Environment.getExternalStorageState();
+        return state.equals(Environment.MEDIA_MOUNTED);
+    }
+
 }
