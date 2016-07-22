@@ -21,8 +21,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.bobby.hotseat.CameraActivity;
-
 import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -80,8 +78,6 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mViewPager;
 
 
-
-
     FirebaseAuth.AuthStateListener mAuthListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,10 +131,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void findEmail() {
-
-
-    }
 
     private void setDisplayName(FirebaseUser firebaseUser) {
         mDisplayName.setText("THIS USER");
@@ -162,12 +154,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void startVideo(View v) {
         launchVideo();
-    }
-
-    private void navigateToCamera(int i) {
-        Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-        intent.putExtra(Strings.KEY_MEDIA, i);
-        startActivity(intent);
     }
 
 
@@ -254,8 +240,8 @@ public class MainActivity extends AppCompatActivity {
                 return true;}
 
             case R.id.action_edit_friends:{
-                Intent intent = new Intent(this, EditFriendsActivity.class);
-                startActivity(intent);
+                //Intent intent = new Intent(this, FirebaseRecyclerAdapter.class);
+                //startActivity(intent); TODO handle this
                 return true;}
 
             case R.id.action_settings:
@@ -276,11 +262,7 @@ public class MainActivity extends AppCompatActivity {
             launchPhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mMediaUri);
             startActivityForResult(launchPhotoIntent, TAKE_PHOTO_REQUEST);
         }
-
     }
-
-
-
 
     public void launchVideo() {
 
@@ -297,7 +279,6 @@ public class MainActivity extends AppCompatActivity {
             videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mMediaUri);
             startActivityForResult(videoIntent, TAKE_VIDEO_REQUEST);
         }
-
     }
 
 
@@ -359,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Return the file's URI
 
-            Log.d(TAG, "FILE::::" + Uri.fromFile(mediaFile));
+            Log.d(TAG, "FILE::" + Uri.fromFile(mediaFile));
             return Uri.fromFile(mediaFile);
 
         }

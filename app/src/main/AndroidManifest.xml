@@ -46,7 +46,7 @@
                 android:value="com.example.bobby.hotseat.LoginActivity"/>
         </activity>
         <activity
-            android:name=".EditFriendsActivity"
+            android:name=".FirebaseRecyclerAdapter"
             android:label="@string/title_activity_edit_friends"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"
@@ -64,6 +64,8 @@
         <activity android:name=".VideoActivity">
         </activity>
         <activity android:name=".RecipientsActivity">
+        </activity>
+        <activity android:name=".RecyclerTestActivity">
         </activity>
     </application>
 

@@ -68,7 +68,8 @@ public class FriendsFragment extends ListFragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-       // mFriendsListView = (ListView) mFriendsListView.findViewById(R.id.friendsListView);
+       // mFriendsRecyclerView = (ListView) mFriendsRecyclerView.findViewById(R.id.friendsListView);
+
     }
 
 
@@ -85,8 +86,8 @@ public class FriendsFragment extends ListFragment{
 
         FirebaseListAdapter<String> adapter =
                 new FirebaseListAdapter<String>(getActivity(), String.class,
-                                            android.R.layout.simple_list_item_checked,
-                                            //R.layout.friend_list_item,
+                                            //android.R.layout.simple_list_item_checked,
+                                            R.layout.friend_list_item,
                                             friendsRef.orderByValue()) {
                     int i = 0;
             @Override
@@ -96,6 +97,7 @@ public class FriendsFragment extends ListFragment{
         };
 
         if (adapter != null) {
+
             setListAdapter(adapter);
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -105,8 +107,6 @@ public class FriendsFragment extends ListFragment{
             AlertDialog dialog = builder.create();
             dialog.show();
         }
-        //mFriendsListView.setAdapter(adapter);
-
+        //mFriendsRecyclerView.setAdapter(adapter);
     }
-
 }

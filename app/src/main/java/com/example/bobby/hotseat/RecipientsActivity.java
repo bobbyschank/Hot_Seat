@@ -1,14 +1,23 @@
 package com.example.bobby.hotseat;
 
 import android.app.AlertDialog;
+import android.app.ListActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.firebase.client.Firebase;
 import com.firebase.ui.FirebaseListAdapter;
+import com.firebase.ui.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -17,7 +26,7 @@ import java.util.List;
 
 public class RecipientsActivity extends AppCompatActivity {
 
-    private static final String TAG = FriendsFragment.class.getSimpleName();
+    private static final String TAG = RecipientsActivity.class.getSimpleName();
 
     protected String mCurrentUser;
     protected List<String> mFriends;
@@ -26,31 +35,64 @@ public class RecipientsActivity extends AppCompatActivity {
     Firebase mRef;
     private DatabaseReference mDatabase;
 
-    ListView mFriendsListView;
+    RecyclerView mFriendsRecyclerView;
+    Button mSendButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipients);
-        mFriendsListView = (ListView) findViewById(R.id.friendsList);
-        mFriendsListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        mFriendsRecyclerView = (RecyclerView) findViewById(R.id.friendsRecycler);
+        mFriendsRecyclerView.setHasFixedSize(true);
+        mFriendsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        mSendButton = (Button) findViewById(R.id.sendButton);
+        Log.d(TAG, "CURRENT USER ID TOKEN" + MainActivity.currentUser.getIdToken());
+
+
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com");
+        mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com/users/"+ MainActivity.currentUser.getIdToken() +"/friendsHash");
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Firebase friendsRef = mRef.child(Strings.KEY_USERS)
                 .child(MainActivity.currentUser.getIdToken())
                 .child(Strings.KEY_FRIENDSHASH); // TODO Don't use public static currentUser
 
-        int i = 0;
 
+        final FirebaseRecyclerAdapter<String, FriendViewHolder> adapter =
+                new FirebaseRecyclerAdapter<String, FriendViewHolder>(
+                        String.class,
+                        R.layout.recycler_list_item,
+                        //android.R.layout.two_line_list_item,
+                        FriendViewHolder.class,
+                        mRef.orderByValue())
+                 {
+                    @Override
+                    protected void populateViewHolder(FriendViewHolder friendViewHolder, String s, int i) {
+                        int ii = 2;
+                        Log.d(TAG, "S1 = " + s);
+                        ((TextView) friendViewHolder.mText).setText(s);
+                        ii = 5;
+                        Log.d(TAG, "S2 = " + s);
+
+
+                    }
+                };
+        Log.d(TAG, "Adapter created");
+
+        mFriendsRecyclerView.setAdapter(adapter);
+        Log.d(TAG, "Adapter set");
+
+/*
         FirebaseListAdapter<String> adapter =
                 new FirebaseListAdapter<String>(this, String.class,
-                        android.R.layout.simple_list_item_checked,
-                        //R.layout.friend_list_item,
+                        //android.R.layout.simple_list_item_checked,
+                        R.layout.friend_list_item,
                         friendsRef.orderByValue()) {
                     int i = 0;
                     @Override
@@ -59,9 +101,19 @@ public class RecipientsActivity extends AppCompatActivity {
                     }
                 };
 
+        Log.d(TAG, "ITEMS" + adapter.getCount());
+
         if (adapter != null) {
-            // setListAdapter(adapter);
-            mFriendsListView.setAdapter(adapter);
+            mFriendsRecyclerView.setAdapter(adapter);
+            mFriendsRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    Log.d(TAG, "ITEMS" + parent.getCount());
+
+                    mSendButton.setVisibility(View.VISIBLE);
+                }
+            });
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(R.string.error_message)
@@ -69,6 +121,27 @@ public class RecipientsActivity extends AppCompatActivity {
                     .setPositiveButton(android.R.string.ok, null);
             AlertDialog dialog = builder.create();
             dialog.show();
+        }*/
+    }
+
+    public static class FriendViewHolder
+                    extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView mText;
+
+        public FriendViewHolder(View v) {
+            super(v);
+            mText = (TextView) v.findViewById(android.R.id.text1);
+            v.setOnClickListener(this);
+        }
+
+        /**
+         * Called when a view has been clicked.
+         *
+         * @param v The view that was clicked.
+         */
+        @Override
+        public void onClick(View v) {
+            Log.d(TAG, "CLICKED IN FRIENDVIEWHOLDER, " + mText.getText());
         }
     }
 }
