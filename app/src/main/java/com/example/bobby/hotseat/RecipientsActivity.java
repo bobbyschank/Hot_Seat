@@ -2,6 +2,9 @@ package com.example.bobby.hotseat;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class RecipientsActivity extends AppCompatActivity {
@@ -38,6 +42,9 @@ public class RecipientsActivity extends AppCompatActivity {
     RecyclerView mFriendsRecyclerView;
     Button mSendButton;
 
+    static int purple;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +57,7 @@ public class RecipientsActivity extends AppCompatActivity {
         mSendButton = (Button) findViewById(R.id.sendButton);
         Log.d(TAG, "CURRENT USER ID TOKEN" + MainActivity.currentUser.getIdToken());
 
+        purple = ContextCompat.getColor(this, R.color.colorAccentPurple);
 
 
     }
@@ -63,30 +71,44 @@ public class RecipientsActivity extends AppCompatActivity {
                 .child(MainActivity.currentUser.getIdToken())
                 .child(Strings.KEY_FRIENDSHASH); // TODO Don't use public static currentUser
 
-
-        final FirebaseRecyclerAdapter<String, FriendViewHolder> adapter =
-                new FirebaseRecyclerAdapter<String, FriendViewHolder>(
-                        String.class,
+        final FirebaseRecyclerAdapter<Object, FriendViewHolder> adapter =
+                new FirebaseRecyclerAdapter<Object, FriendViewHolder>(
+                        Object.class,
                         R.layout.recycler_list_item,
                         //android.R.layout.two_line_list_item,
                         FriendViewHolder.class,
                         mRef.orderByValue())
                  {
+
                     @Override
-                    protected void populateViewHolder(FriendViewHolder friendViewHolder, String s, int i) {
+                    public void onBindViewHolder(FriendViewHolder holder, int position, List<Object> payloads) {
+                        super.onBindViewHolder(holder, position, payloads);
+                    }
+
+                    @Override
+                    protected void populateViewHolder(FriendViewHolder friendViewHolder, Object s, int i) {
                         int ii = 2;
-                        Log.d(TAG, "S1 = " + s);
-                        ((TextView) friendViewHolder.mText).setText(s);
+                        String key = this.getRef(i).getKey();
+                        Log.d(TAG, "S1 = " + key);
+                        //HashMap hashMap = (HashMap) new HashMap<String, String>();
+                        //hashMap = (HashMap) s;
+                        ((TextView) friendViewHolder.mText).setText(s.toString());
                         ii = 5;
-                        Log.d(TAG, "S2 = " + s);
+                        Log.d(TAG, "VALUE = " + s);
+                        Log.d(TAG, "KEY = " + mRef.child(s.toString()));
+                        Log.d(TAG, "INT = " + i);
+
 
 
                     }
+
+
+
                 };
         Log.d(TAG, "Adapter created");
-
         mFriendsRecyclerView.setAdapter(adapter);
         Log.d(TAG, "Adapter set");
+
 
 /*
         FirebaseListAdapter<String> adapter =
@@ -133,7 +155,6 @@ public class RecipientsActivity extends AppCompatActivity {
             mText = (TextView) v.findViewById(android.R.id.text1);
             v.setOnClickListener(this);
         }
-
         /**
          * Called when a view has been clicked.
          *
@@ -141,7 +162,9 @@ public class RecipientsActivity extends AppCompatActivity {
          */
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "CLICKED IN FRIENDVIEWHOLDER, " + mText.getText());
+            Log.d(TAG, "CLICKED IN FRIENDVIEWHOLDER, " + mText);
+            mText.setBackgroundColor(purple);
+            Log.d(TAG, "HEARD AT : " + getAdapterPosition() + "");
         }
     }
 }
