@@ -1,4 +1,4 @@
-package com.example.bobby.hotseat;
+package com.example.bobby.hotseat.UI;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -21,6 +21,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.bobby.hotseat.Adapters.SectionsPagerAdapter;
+import com.example.bobby.hotseat.Data.HSUser;
+import com.example.bobby.hotseat.Data.Strings;
+import com.example.bobby.hotseat.R;
 import com.firebase.client.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -273,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
         videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, mVideoQuality);
 
         mMediaUri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
+
         if (mMediaUri == null) {
             Toast.makeText(MainActivity.this, R.string.error_external_storage, Toast.LENGTH_SHORT).show();
         } else {
@@ -303,7 +308,6 @@ public class MainActivity extends AppCompatActivity {
         } else if (resultCode != RESULT_CANCELED) {
             Toast.makeText(this, R.string.general_error, Toast.LENGTH_LONG).show();
         }
-
     }
 
     private Uri getOutputMediaFileUri(int mediaType) {

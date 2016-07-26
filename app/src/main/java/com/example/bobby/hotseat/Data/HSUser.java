@@ -1,35 +1,43 @@
-package com.example.bobby.hotseat;
+package com.example.bobby.hotseat.Data;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Created by bobby on 6/7/16.
+ * Created by bobby on 7/11/16.
  */
-
-public class HotSeatUser {
+public class HSUser {
 
     private String mIdToken;
     private String mDisplayName;
     private String mEmail;
-    private HashMap<String, Boolean> mFriendsHash;
+    private Map<String, String> mFriendsHash;
 
-    public HotSeatUser() {
-        // Default constructor required for calls to DataSnapshot.getValue(User.class)
+    public HSUser() {
+        // Default constructor required for calls to DataSnapshot.getValue(HotSeatUser.class)
     }
 
-    public HotSeatUser(String idToken, String name, String email) {
+    public HSUser(String idToken, String name, String email) {
         mIdToken = idToken;
         mDisplayName = name;
         mEmail = email;
         mFriendsHash = new HashMap<>();
     }
 
-    public void addFriend(String friendIdToken) {
-        mFriendsHash.put(friendIdToken, true);
+    public void addFriend(String friendIdToken, String friendDisplayName) {
+        mFriendsHash.put(friendIdToken, friendDisplayName);
     }
 
     public void removeFriend(String friendIdToken) {
         mFriendsHash.remove(friendIdToken);
+    }
+
+    public String getDisplayName() {
+        return mDisplayName;
+    }
+
+    public Map<String, String> getFriendsHash() {
+        return mFriendsHash;
     }
 
     public String getIdToken() {
@@ -38,10 +46,6 @@ public class HotSeatUser {
 
     public void setIdToken(String midToken) {
         this.mIdToken = midToken;
-    }
-
-    public String getDisplayName() {
-        return mDisplayName;
     }
 
     public void setDisplayName(String name) {

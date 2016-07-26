@@ -1,10 +1,12 @@
-package com.example.bobby.hotseat;
+package com.example.bobby.hotseat.UI;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.bobby.hotseat.R;
 
 /**
  * Created by bobby on 6/6/16.

@@ -1,4 +1,4 @@
-package com.example.bobby.hotseat;
+package com.example.bobby.hotseat.UI;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -12,6 +12,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.bobby.hotseat.Data.Strings;
+import com.example.bobby.hotseat.R;
 import com.firebase.client.Firebase;
 
 import com.firebase.ui.FirebaseListAdapter;
@@ -136,9 +138,7 @@ public class AddFriendActivity extends AppCompatActivity {
 
                     Toast.makeText(context, displayName + " " + text, Toast.LENGTH_SHORT).show();
 
-
                 }
-
             }
 
             @Override

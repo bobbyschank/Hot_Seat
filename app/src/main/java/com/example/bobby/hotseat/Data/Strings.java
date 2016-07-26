@@ -1,4 +1,4 @@
-package com.example.bobby.hotseat;
+package com.example.bobby.hotseat.Data;
 
 /**
  * Created by bobby on 6/6/16.

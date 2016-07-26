@@ -1,4 +1,4 @@
-package com.example.bobby.hotseat;
+package com.example.bobby.hotseat.UI;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -10,19 +10,15 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.bobby.hotseat.MainActivity;
+import com.example.bobby.hotseat.Data.Strings;
 
+import com.example.bobby.hotseat.R;
 import com.firebase.client.Firebase;
 import com.firebase.ui.FirebaseListAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -81,6 +77,7 @@ public class FriendsFragment extends ListFragment{
         Firebase friendsRef = mRef.child(Strings.KEY_USERS)
                 .child(MainActivity.currentUser.getIdToken())
                 .child(Strings.KEY_FRIENDSHASH); // TODO Don't use public static currentUser
+        Log.d(TAG, friendsRef.toString() + "");
 
         int i = 0;
 
@@ -93,6 +90,7 @@ public class FriendsFragment extends ListFragment{
             @Override
             protected void populateView(View view, String s, int i) {
                 ((TextView) view.findViewById(android.R.id.text1)).setText(s);
+
             }
         };
 

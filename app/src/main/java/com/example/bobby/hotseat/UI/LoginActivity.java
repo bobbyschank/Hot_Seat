@@ -1,4 +1,4 @@
-package com.example.bobby.hotseat;
+package com.example.bobby.hotseat.UI;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -16,6 +16,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.bobby.hotseat.Data.HSUser;
+import com.example.bobby.hotseat.Data.Strings;
+import com.example.bobby.hotseat.R;
 import com.firebase.client.Firebase;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;

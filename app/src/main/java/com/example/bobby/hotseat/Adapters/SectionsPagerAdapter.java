@@ -1,9 +1,14 @@
-package com.example.bobby.hotseat;
+package com.example.bobby.hotseat.Adapters;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import com.example.bobby.hotseat.UI.ChooseFragment;
+import com.example.bobby.hotseat.UI.FriendsFragment;
+import com.example.bobby.hotseat.UI.InboxFragment;
+import com.example.bobby.hotseat.R;
 
 
 /**

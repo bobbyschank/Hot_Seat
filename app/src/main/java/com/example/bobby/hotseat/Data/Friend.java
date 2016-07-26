@@ -1,35 +1,35 @@
-package com.example.bobby.hotseat;
+package com.example.bobby.hotseat.Data;
 
 import java.util.HashMap;
 
 /**
- * Created by bobby on 6/7/16.
+ * Created by bobby on 6/8/16.
  */
-
-public class HotSeatUser {
-
+public class Friend {
     private String mIdToken;
     private String mDisplayName;
     private String mEmail;
-    private HashMap<String, Boolean> mFriendsHash;
 
-    public HotSeatUser() {
+    private boolean mSelected;
+    private HashMap<String, String> mFriendsHash;
+
+    public Friend() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public HotSeatUser(String idToken, String name, String email) {
+    public Friend(String idToken, String name, String email) {
         mIdToken = idToken;
         mDisplayName = name;
         mEmail = email;
-        mFriendsHash = new HashMap<>();
+        mSelected = false;
     }
 
-    public void addFriend(String friendIdToken) {
-        mFriendsHash.put(friendIdToken, true);
+    public boolean isSelected() {
+        return mSelected;
     }
 
-    public void removeFriend(String friendIdToken) {
-        mFriendsHash.remove(friendIdToken);
+    public void setSelected(boolean selected) {
+        mSelected = selected;
     }
 
     public String getIdToken() {
