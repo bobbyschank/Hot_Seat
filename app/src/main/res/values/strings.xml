@@ -54,6 +54,8 @@
     </string>
     <string name="general_error">Sorry, there was an error!</string>
 
+    <string name="upload_complete">Upload Complete</string>
+
     <string-array name="sponse_choices">
         <item>Send Message</item>
         <item>Send Photo</item>

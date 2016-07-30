@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.bobby.hotseat.Data.Friend;
 import com.example.bobby.hotseat.Data.Strings;
@@ -65,6 +66,7 @@ public class RecipientsActivity extends AppCompatActivity {
     StorageReference imagesRef = storageRef.child("images");
 
     Uri mMediaUri;
+    Uri storageUri;
 
 
 
@@ -216,10 +218,10 @@ public class RecipientsActivity extends AppCompatActivity {
 
         if (lastPathSeg.contains(".mp4")) {
             contentType = "video/mp4";
-            contentPath = "video";
+            contentPath = "Videos";
         } else if (lastPathSeg.contains(".jpg")) {
             contentType = "image/jpeg";
-            contentPath  = "image";
+            contentPath  = "Images";
         } else {
             Log.d(TAG, "Error finding content type.");
         }
@@ -255,8 +257,57 @@ public class RecipientsActivity extends AppCompatActivity {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // Handle successful uploads on complete
                 Uri downloadUrl = taskSnapshot.getMetadata().getDownloadUrl();
+                storageUri = downloadUrl;
+                Toast.makeText(RecipientsActivity.this, "Upload Complete", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, downloadUrl + "");
             }
         });
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // If there's an upload in progress, save the reference so you can query it later
+        if (storageRef != null) {
+            outState.putString("reference", storageRef.toString());
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // If there was an upload in progress, get its reference and create a new StorageReference
+        final String stringRef = savedInstanceState.getString("reference");
+        if (stringRef == null) {
+            return;
+        }
+        storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(stringRef);
+
+        // Find all UploadTasks under this StorageReference (in this example, there should be one)
+        List<UploadTask> tasks = storageRef.getActiveUploadTasks();
+        if (tasks.size() > 0) {
+            // Get the task monitoring the upload
+            UploadTask task = tasks.get(0);
+
+            // Add new listeners to the task using an Activity scope
+            task.addOnSuccessListener(this, new OnSuccessListener() {
+                @Override
+                public void onSuccess(Object o) {
+                    Toast.makeText(RecipientsActivity.this, R.string.upload_complete, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+
+    private void sendUriToRecipients(List<Friend> mSelectedFriendsList) {
+        selectedFriendsList = mSelectedFriendsList;
+        for (Friend friend : mSelectedFriendsList) {
+            mDatabase.child(friend.getIdToken()).child("sponses").push().getKey();
+        }
 
     }
 
