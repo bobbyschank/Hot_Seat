@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bobby.hotseat.Data.Friend;
+import com.example.bobby.hotseat.Data.Sponse;
 import com.example.bobby.hotseat.Data.Strings;
 import com.example.bobby.hotseat.R;
 import com.firebase.client.Firebase;
@@ -34,7 +35,9 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RecipientsActivity extends AppCompatActivity {
 
@@ -258,8 +261,10 @@ public class RecipientsActivity extends AppCompatActivity {
                 // Handle successful uploads on complete
                 Uri downloadUrl = taskSnapshot.getMetadata().getDownloadUrl();
                 storageUri = downloadUrl;
+                Sponse sponse = new Sponse(MainActivity.currentUser.getIdToken(), MainActivity.currentUser.getDisplayName(), downloadUrl);
                 Toast.makeText(RecipientsActivity.this, "Upload Complete", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, downloadUrl + "");
+                sendSponse(sponse);
             }
         });
 
@@ -303,12 +308,26 @@ public class RecipientsActivity extends AppCompatActivity {
     }
 
 
-    private void sendUriToRecipients(List<Friend> mSelectedFriendsList) {
-        selectedFriendsList = mSelectedFriendsList;
-        for (Friend friend : mSelectedFriendsList) {
-            mDatabase.child(friend.getIdToken()).child("sponses").push().getKey();
+    private void sendSponse(Sponse sponse) {
+        for (Friend friend : selectedFriendsList) {
+
+            //String key =
+            Log.d(TAG, "SPONSE URL: " + sponse.getIdToken());
+            String key = mDatabase.child(Strings.KEY_USERS).child(friend.getIdToken()).child("sponses").push().getKey();
+
+            //Map<String, Sponse> postValues = sponse.toMap();
+
+            HashMap<String, Object> result = new HashMap<>();
+            result.put("uid", sponse.getIdToken());
+            result.put("name", sponse.getDisplayName());
+            result.put("uri", sponse.getUri().toString());
+
+            Map<String, Object> childUpdates = new HashMap<>();
+            childUpdates.put("/sponses/" + key, result);
+
+           mDatabase.child(Strings.KEY_USERS)
+                   .child(MainActivity.currentUser.getIdToken())
+                   .child("sponses/" + key).updateChildren(result);
         }
-
     }
-
 }
