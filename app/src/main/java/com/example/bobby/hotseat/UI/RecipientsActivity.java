@@ -71,8 +71,6 @@ public class RecipientsActivity extends AppCompatActivity {
     Uri mMediaUri;
     Uri storageUri;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +101,7 @@ public class RecipientsActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com/users/"+ MainActivity.currentUser.getIdToken() +"/friendsHash");
+        mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com/users/"+ MainActivity.currentUser.getIdToken() + "/" + Strings.KEY_FRIENDSHASH);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Firebase friendsRef = mRef.child(Strings.KEY_USERS)
                 .child(MainActivity.currentUser.getIdToken())
@@ -139,6 +137,7 @@ public class RecipientsActivity extends AppCompatActivity {
         Log.d(TAG, "Adapter created");
         mFriendsRecyclerView.setAdapter(adapter);
         Log.d(TAG, "Adapter set");
+
 /*
         FirebaseListAdapter<String> adapter =
                 new FirebaseListAdapter<String>(this, String.class,
@@ -155,8 +154,8 @@ public class RecipientsActivity extends AppCompatActivity {
         Log.d(TAG, "ITEMS" + adapter.getCount());
 
         if (adapter != null) {
-            mFriendsRecyclerView.setAdapter(adapter);
-            mFriendsRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            mInboxRecyclerView.setAdapter(adapter);
+            mInboxRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -185,6 +184,7 @@ public class RecipientsActivity extends AppCompatActivity {
             mText = (TextView) v.findViewById(android.R.id.text1);
             v.setOnClickListener(this);
         }
+
         /**
          * Called when a view has been clicked.
          *
@@ -261,7 +261,10 @@ public class RecipientsActivity extends AppCompatActivity {
                 // Handle successful uploads on complete
                 Uri downloadUrl = taskSnapshot.getMetadata().getDownloadUrl();
                 storageUri = downloadUrl;
-                Sponse sponse = new Sponse(MainActivity.currentUser.getIdToken(), MainActivity.currentUser.getDisplayName(), downloadUrl);
+                Sponse sponse = new Sponse(MainActivity.currentUser.getIdToken(),
+                                            MainActivity.currentUser.getDisplayName(),
+                                            downloadUrl.toString());
+
                 Toast.makeText(RecipientsActivity.this, "Upload Complete", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, downloadUrl + "");
                 sendSponse(sponse);
@@ -303,19 +306,15 @@ public class RecipientsActivity extends AppCompatActivity {
                 public void onSuccess(Object o) {
                     Toast.makeText(RecipientsActivity.this, R.string.upload_complete, Toast.LENGTH_SHORT).show();
                 }
-            });
+            }); // TODO Handle this situation with send sponse.
         }
     }
-
 
     private void sendSponse(Sponse sponse) {
         for (Friend friend : selectedFriendsList) {
 
-            //String key =
-            Log.d(TAG, "SPONSE URL: " + sponse.getIdToken());
+            Log.d(TAG, "SPONSE ID: " + sponse.getIdToken());
             String key = mDatabase.child(Strings.KEY_USERS).child(friend.getIdToken()).child("sponses").push().getKey();
-
-            //Map<String, Sponse> postValues = sponse.toMap();
 
             HashMap<String, Object> result = new HashMap<>();
             result.put("uid", sponse.getIdToken());
@@ -325,9 +324,7 @@ public class RecipientsActivity extends AppCompatActivity {
             Map<String, Object> childUpdates = new HashMap<>();
             childUpdates.put("/sponses/" + key, result);
 
-           mDatabase.child(Strings.KEY_USERS)
-                   .child(MainActivity.currentUser.getIdToken())
-                   .child("sponses/" + key).updateChildren(result);
+            mDatabase.child(Strings.KEY_USERS).child(friend.getIdToken()).child("sponses").child(key).setValue(sponse);
         }
     }
 }

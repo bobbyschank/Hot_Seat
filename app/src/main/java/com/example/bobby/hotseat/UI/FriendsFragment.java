@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.bobby.hotseat.Data.Sponse;
 import com.example.bobby.hotseat.Data.Strings;
 
 import com.example.bobby.hotseat.R;
@@ -20,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import com.google.firebase.database.DatabaseReference;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -64,7 +66,7 @@ public class FriendsFragment extends ListFragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-       // mFriendsRecyclerView = (ListView) mFriendsRecyclerView.findViewById(R.id.friendsListView);
+       // mInboxRecyclerView = (ListView) mInboxRecyclerView.findViewById(R.id.friendsListView);
 
     }
 
@@ -76,22 +78,22 @@ public class FriendsFragment extends ListFragment{
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Firebase friendsRef = mRef.child(Strings.KEY_USERS)
                 .child(MainActivity.currentUser.getIdToken())
-                .child(Strings.KEY_FRIENDSHASH); // TODO Don't use public static currentUser
+                .child("friendsHash"); // TODO Don't use public static currentUser
         Log.d(TAG, friendsRef.toString() + "");
 
         int i = 0;
 
         FirebaseListAdapter<String> adapter =
-                new FirebaseListAdapter<String>(getActivity(), String.class,
-                                            //android.R.layout.simple_list_item_checked,
-                                            R.layout.friend_list_item,
-                                            friendsRef.orderByValue()) {
-                    int i = 0;
-            @Override
-            protected void populateView(View view, String s, int i) {
-                ((TextView) view.findViewById(android.R.id.text1)).setText(s);
+                new FirebaseListAdapter<String>(getActivity(),
+                                            String.class,
+                                            android.R.layout.simple_list_item_1,
+                                            //R.layout.friend_list_item,
+                                            friendsRef) {
+                    @Override
+                    public void populateView(View view,  String s, int i) {
+                        ((TextView) view.findViewById(android.R.id.text1)).setText((CharSequence) s);
+                    }
 
-            }
         };
 
         if (adapter != null) {
@@ -105,6 +107,6 @@ public class FriendsFragment extends ListFragment{
             AlertDialog dialog = builder.create();
             dialog.show();
         }
-        //mFriendsRecyclerView.setAdapter(adapter);
+        //mInboxRecyclerView.setAdapter(adapter);
     }
 }

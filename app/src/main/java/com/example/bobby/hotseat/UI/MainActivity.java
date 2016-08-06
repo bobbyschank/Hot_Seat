@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.FragmentPagerAdapter;
@@ -45,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mDisplayName;
 
+
+
+    public static RecyclerView mInboxRecyclerView;
 
     FirebaseAuth mAuth;
     Firebase mRef;
@@ -90,6 +94,9 @@ public class MainActivity extends AppCompatActivity {
 
         mDisplayName = (TextView) findViewById(R.id.displayNameView);
 
+        //mInboxRecyclerView = (RecyclerView) findViewById(R.id.inboxRecycler);
+        //mInboxRecyclerView.setHasFixedSize(true);
+        //mInboxRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -243,9 +250,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;}
 
-            case R.id.action_edit_friends:{
-                //Intent intent = new Intent(this, FirebaseRecyclerAdapter.class);
-                //startActivity(intent); TODO handle this
+            case R.id.action_recycler:{
+                Intent intent = new Intent(this, Recycler.class);
+                startActivity(intent); // TODO handle this
                 return true;}
 
             case R.id.action_settings:

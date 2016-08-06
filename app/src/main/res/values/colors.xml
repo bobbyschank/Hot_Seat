@@ -7,4 +7,5 @@
     <color name="colorBackgroundGrey">#555555</color>
     <color name="colorPrimaryLightBlue">#4da6ff</color>
     <color name="colorPrimaryLight">#5ebfff</color>
+    <color name="colorDarkGrey">#424242</color>
 </resources>

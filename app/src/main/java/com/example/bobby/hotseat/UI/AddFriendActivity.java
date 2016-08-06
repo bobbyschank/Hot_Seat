@@ -77,12 +77,42 @@ public class AddFriendActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com");
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Log.d(TAG, "onStart");
         Firebase friendsRef = mRef.child(Strings.KEY_USERS).child(userID).child(Strings.KEY_FRIENDSHASH);
         FirebaseListAdapter<String> adapter =
-                new FirebaseListAdapter<String>(this, String.class, android.R.layout.simple_list_item_1, friendsRef.orderByValue()) {
+                new FirebaseListAdapter<String>(
+                        this,
+                        String.class,
+                        android.R.layout.simple_list_item_1,
+                        friendsRef.orderByValue())
+                {
                     @Override
                     protected void populateView(View view, String s, int i) {
                         TextView textView = (TextView)view.findViewById(android.R.id.text1);
