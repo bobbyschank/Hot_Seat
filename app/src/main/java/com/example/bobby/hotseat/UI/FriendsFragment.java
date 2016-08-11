@@ -86,8 +86,8 @@ public class FriendsFragment extends ListFragment{
         FirebaseListAdapter<String> adapter =
                 new FirebaseListAdapter<String>(getActivity(),
                                             String.class,
-                                            android.R.layout.simple_list_item_1,
-                                            //R.layout.friend_list_item,
+                                            //android.R.layout.simple_list_item_1,
+                                            R.layout.friend_list_item,
                                             friendsRef) {
                     @Override
                     public void populateView(View view,  String s, int i) {

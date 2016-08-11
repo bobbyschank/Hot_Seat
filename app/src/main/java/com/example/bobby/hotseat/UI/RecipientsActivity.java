@@ -1,7 +1,6 @@
 package com.example.bobby.hotseat.UI;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -94,8 +93,6 @@ public class RecipientsActivity extends AppCompatActivity {
         Log.d(TAG, "mMediaUri.getLastPathSegment: " + mMediaUri.getLastPathSegment());
 
         purple = ContextCompat.getColor(this, R.color.colorAccentPurple);
-
-        int i = checkCallingPermission(String.valueOf(REQUEST_EXTERNAL_STORAGE));
     }
 
     @Override
@@ -264,6 +261,8 @@ public class RecipientsActivity extends AppCompatActivity {
                 Sponse sponse = new Sponse(MainActivity.currentUser.getIdToken(),
                                             MainActivity.currentUser.getDisplayName(),
                                             downloadUrl.toString());
+
+                Log.d(TAG, "SPONSE TIMESTAMP:     " + sponse.getTimeStamp());
 
                 Toast.makeText(RecipientsActivity.this, "Upload Complete", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, downloadUrl + "");

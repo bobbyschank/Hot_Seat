@@ -1,19 +1,10 @@
 package com.example.bobby.hotseat.Data;
 
-import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.text.format.Time;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.firebase.database.DatabaseReference;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -26,7 +17,8 @@ public class Sponse {
     private String mIdToken;
     private String mDisplayName;
     private String mUri;
-    //private Date mTimestamp;
+    private String mTimeStamp;
+    private int mStatus;
 
     public Sponse() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
@@ -36,12 +28,27 @@ public class Sponse {
         mIdToken = idToken;
         mDisplayName = name;
         mUri = uri;
-       // mTimestamp = new Date();
+        Date date =  new Date();
+        String timeStamp = new SimpleDateFormat("MMM d,  h:mm a", Locale.US).format(date);
+        // TODO Under a week, show day of week, under a day, show time.
+        // Maybe three different strings? or manipulate in inbox fragment
+        mTimeStamp = timeStamp;
+        mStatus = 0;
     }
 
-    //public Date getTimestamp() {return mTimestamp;}
+    public int getStatus() {
+        return mStatus;
+    }
 
-    //public void setTimestamp(Date timestamp) {mTimestamp = timestamp;}
+    public void setStatus(int status) {
+        mStatus = status;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        mTimeStamp = timeStamp;
+    }
+
+    public String getTimeStamp() {return mTimeStamp;}
 
     public String getIdToken() {
         return mIdToken;

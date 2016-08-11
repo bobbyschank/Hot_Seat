@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mDisplayName;
 
-
+    public static File trialFile;
 
     public static RecyclerView mInboxRecyclerView;
 
@@ -175,16 +175,13 @@ public class MainActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth.addAuthStateListener(mAuthListener);
 
-
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d(TAG, "onChildAdded\n\n");
                 HSUser hSUser = dataSnapshot.getValue(HSUser.class);
                 Log.d(TAG, "onChildAdded:" + hSUser);
-                //if (hSUser == friendEmail) {Log.d(TAG, "MATCH!!!!!" + hSUser);}
 
-                // Comment comment = dataSnapshot.getValue(Comment.class);
             }
 
             @Override
@@ -209,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
 
         };
         mDatabase.child(Strings.KEY_USERS).addChildEventListener(childEventListener);
-
 
     }
 
@@ -252,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.action_recycler:{
                 Intent intent = new Intent(this, Recycler.class);
-                startActivity(intent); // TODO handle this
+                startActivity(intent);
                 return true;}
 
             case R.id.action_settings:
@@ -352,6 +348,8 @@ public class MainActivity extends AppCompatActivity {
             // Return the file's URI
 
             Log.d(TAG, "FILE::" + Uri.fromFile(mediaFile));
+
+            trialFile = mediaFile;
             return Uri.fromFile(mediaFile);
 
         }
