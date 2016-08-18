@@ -1,5 +1,6 @@
 package com.example.bobby.hotseat.UI;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,29 +9,40 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.bobby.hotseat.Data.Sponse;
 import com.example.bobby.hotseat.R;
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import org.w3c.dom.Comment;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by bobby on 6/6/16.
@@ -46,6 +58,8 @@ public class InboxFragment extends Fragment {
 
     public static final int MEDIA_TYPE_IMAGE = 2;
     public static final int MEDIA_TYPE_VIDEO = 3;
+
+    public static final int REQUEST_AUTORECORD = 4;
     public boolean isLoaded = false;
 
     protected String mCurrentUser;
@@ -66,17 +80,15 @@ public class InboxFragment extends Fragment {
 
     }
 
+    /**
+     * Called when the fragment is visible to the user and actively running.
+     * This is generally
+     * tied to {@link //Activity#onResume() Activity.onResume} of the containing
+     * Activity's lifecycle.
+     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        final View rootView = inflater.inflate(R.layout.fragment_inbox, container, false);
-        mInboxRecyclerView = (RecyclerView) rootView.findViewById(R.id.inboxRecycler);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        mInboxRecyclerView.setLayoutManager(layoutManager);
-        //mInboxRecyclerView.setHasFixedSize(true);
-
-        emptyTextView = (TextView) rootView.findViewById(R.id.emptyInbox);
+    public void onResume() {
+        super.onResume();
 
 
         final FirebaseRecyclerAdapter<Sponse, InboxViewHolder> adapter =
@@ -93,8 +105,6 @@ public class InboxFragment extends Fragment {
 
                         emptyTextView.setVisibility(View.INVISIBLE);
 
-                        arrangeDisplay(sponse);
-
                         Log.d(TAG, "In Populate View Holder.");
                         ((TextView) InboxViewHolder.mAuthorView).setText((CharSequence) sponse.getDisplayName());
 
@@ -108,48 +118,111 @@ public class InboxFragment extends Fragment {
                         inboxViewHolder.mView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                Log.d(TAG, "CLICK");
 
                                 String uri = sponse.getUri();
 
                                 Log.d(TAG, "UNIQUE KEY:          " + key);
-
                                 File file = createFile(key, MEDIA_TYPE_VIDEO);
 
-                                if (sponse.getStatus() == 1) {
-                                    try {
-                                        goVid(file, Uri.parse(uri));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    try {
+                                switch (sponse.getStatus()) {
+                                    case 0: {
+                                        Log.d(TAG, "In CASE 0");
                                         mRef.child(key).child("status").setValue(1);
-                                        if (loadSponse(file, uri)){
-                                            mRef.child(key).child("status").setValue(2);
+                                        //arrangeDisplay(sponse);
+                                        try {
+                                            loadSponse(file, uri, key, sponse);
+                                            Log.d(TAG, "IN TRY");
+                                            //mRef.child(key).child("status").setValue(2);
+
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                            Log.d(TAG, "IN CATCH");
                                         }
-
-
-
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
+                                        Log.d(TAG, "In CASE 0 NUMBER 2");
+                                        return;
                                     }
+                                    case 1: {
+                                        Log.d(TAG, "In CASE 1.");
+                                        return;
+                                    }
+                                    case 2: {
+                                        Log.d(TAG, "In CASE 2.");
+                                        try {
+                                            if (file.exists()) {
+                                                goVid(file, Uri.parse(uri));
 
-
+                                                Log.d(TAG, "END GO VID TRY BLOCK");
+                                            }
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                            Log.d(TAG, "Error playing video.");
+                                        }
+                                        return;
+                                    }
 
                                 }
-
-
-
+                                //arrangeDisplay(sponse);
                             }
                         });
+                        arrangeDisplay(sponse);
+                        Log.d(TAG, "END OF POPULATE VIEWHOLDER");
+
                     }
                 };
-
         Log.d(TAG, "Adapter created");
         mInboxRecyclerView.setAdapter(adapter);
         Log.d(TAG, "Adapter set");
 
-        Log.d(TAG, "ITEM COUNT" + adapter.getItemCount());
+
+    }
+
+
+    private static class NpaLinearLayoutManager extends LinearLayoutManager{
+
+
+
+        /**
+         * Disable predictive animations. There is a bug in RecyclerView which causes views that
+         * are being reloaded to pull invalid ViewHolders from the internal recycler stack if the
+         * adapter size has decreased since the ViewHolder was recycled.
+         */
+        @Override
+        public boolean supportsPredictiveItemAnimations() {
+            return false;
+        }
+
+        public NpaLinearLayoutManager(Context context) {
+            super(context);
+        }
+
+/*
+        public NpaLinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+            super(context, attrs, defStyleAttr, defStyleRes);
+        }
+
+        public NpaLinearLayoutManager(Context context, int spanCount) {
+            super(context, spanCount);
+        }
+
+        public NpaLinearLayoutManager(Context context, int spanCount, int orientation, boolean reverseLayout) {
+            super(context, spanCount, orientation, reverseLayout);
+        }
+        */
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        final View rootView = inflater.inflate(R.layout.fragment_inbox, container, false);
+        mInboxRecyclerView = (RecyclerView) rootView.findViewById(R.id.inboxRecycler);
+        RecyclerView.LayoutManager layoutManager = new NpaLinearLayoutManager(getActivity());
+        boolean predictiveItemAnimations = layoutManager.supportsPredictiveItemAnimations();
+        mInboxRecyclerView.setLayoutManager(layoutManager);
+        //mInboxRecyclerView.setHasFixedSize(true);
+
+        emptyTextView = (TextView) rootView.findViewById(R.id.emptyInbox);
 
         return rootView;
     }
@@ -174,29 +247,36 @@ public class InboxFragment extends Fragment {
         }
     }
 
-    private boolean loadSponse(final File file, final String uri) throws IOException {
+    private void loadSponse(final File file, final String uri, final String key, final Sponse sponse) throws IOException {
 
         StorageReference storageRef = storage.getReferenceFromUrl(uri);
-        final boolean[] b = new boolean[0];
+        //final boolean[] b = new boolean[0];
 
-        final File localFile = file;
-        //Uri uri = Uri.fromFile(file);
-        storageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+        int i = 0;
+
+        storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                mRef.child(key).child("status").setValue(2);
+
+
                 // Local temp file has been created
                 Log.d(TAG, "LOCAL TEMP FILE CREATED");
-                b[0] = true;
+                //b[0] = true;
+                // i = 2;
+               //arrangeDisplay(sponse);
+
+                InboxViewHolder.mInboxProgress.setVisibility(View.INVISIBLE);
+                ((TextView) InboxViewHolder.mLoadIndicator).setText((CharSequence) "tap to view");
 
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                b[0] = false;
+                //b[0] = false;
                 // Handle any errors
             }
         });
-        return b[0];
 
     }
 
@@ -207,7 +287,6 @@ public class InboxFragment extends Fragment {
         File mediaStorageDir = new File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 appName);
-
 
         // Create the file
         File file;
@@ -227,31 +306,58 @@ public class InboxFragment extends Fragment {
 
     public void goVid(File file, Uri uri) throws IOException {
 
-        Uri realUri = Uri.fromFile(file);
-        Uri thisUri = Uri.parse("/storage/emulated/0/Pictures/Sponse/VID_20160809_131105.mp4");
-
         Log.d(TAG, "START THAT VIDEO" + uri);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.setDataAndType(Uri.fromFile(file), "video/*");
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_AUTORECORD);
+    }
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_AUTORECORD) {
+
+            int i = resultCode;
+
+            int ii = 0;
+
+            if (resultCode == 0) // TODO get intent resultCode to recognize video completion
+            {
+
+                Log.d(TAG, "HOPEFULLY, END OF VIDEO.");
+
+                // Navigate to Record Video
+                Intent autoRecordIntent = new Intent(getActivity(), AutoRecordActivity.class);
+                startActivity(autoRecordIntent);
+
+            } else {
+                Log.d(TAG, "RESULT NOT OK.");
+                Toast.makeText(getActivity(), R.string.general_error, Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Log.d(TAG, "REQUEST NOT OK.");
+        }
     }
 
     private void arrangeDisplay(Sponse sponse) {
         switch (sponse.getStatus()) {
             case 0:{
-                Log.d(TAG, "In CASE 0");
+                Log.d(TAG, "In CASE 0 DISPLAY SWITCH");
                 InboxViewHolder.mInboxProgress.setVisibility(View.INVISIBLE);
                 ((TextView) InboxViewHolder.mLoadIndicator).setText((CharSequence) "tap to load");
                 return;
             }
             case 1:{
-                Log.d(TAG, "In CASE 1.");
+                Log.d(TAG, "In CASE 1 DISPLAY SWITCH.");
                 InboxViewHolder.mInboxProgress.setVisibility(View.VISIBLE);
                 ((TextView) InboxViewHolder.mLoadIndicator).setText((CharSequence) "loading");
                 return;
             }
             case 2:{
-                Log.d(TAG, "In CASE 2.");
+                Log.d(TAG, "In CASE 2 DISPLAY SWITCH.");
                 InboxViewHolder.mInboxProgress.setVisibility(View.INVISIBLE);
                 ((TextView) InboxViewHolder.mLoadIndicator).setText((CharSequence) "tap to view");
                 return;
@@ -260,4 +366,5 @@ public class InboxFragment extends Fragment {
         }
 
     }
+
 }

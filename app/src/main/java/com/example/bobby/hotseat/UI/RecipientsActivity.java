@@ -59,7 +59,7 @@ public class RecipientsActivity extends AppCompatActivity {
     RecyclerView mFriendsRecyclerView;
     Button mSendButton;
 
-    static int purple;
+    static int highlight;
 
     FirebaseStorage storage = FirebaseStorage.getInstance();
 
@@ -92,7 +92,7 @@ public class RecipientsActivity extends AppCompatActivity {
 
         Log.d(TAG, "mMediaUri.getLastPathSegment: " + mMediaUri.getLastPathSegment());
 
-        purple = ContextCompat.getColor(this, R.color.colorAccentPurple);
+        highlight = ContextCompat.getColor(this, R.color.colorAccentOrangeLight);
     }
 
     @Override
@@ -135,40 +135,6 @@ public class RecipientsActivity extends AppCompatActivity {
         mFriendsRecyclerView.setAdapter(adapter);
         Log.d(TAG, "Adapter set");
 
-/*
-        FirebaseListAdapter<String> adapter =
-                new FirebaseListAdapter<String>(this, String.class,
-                        //android.R.layout.simple_list_item_checked,
-                        R.layout.friend_list_item,
-                        friendsRef.orderByValue()) {
-                    int i = 0;
-                    @Override
-                    protected void populateView(View view, String s, int i) {
-                        ((TextView) view.findViewById(android.R.id.text1)).setText(s);
-                    }
-                };
-
-        Log.d(TAG, "ITEMS" + adapter.getCount());
-
-        if (adapter != null) {
-            mInboxRecyclerView.setAdapter(adapter);
-            mInboxRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                    Log.d(TAG, "ITEMS" + parent.getCount());
-
-                    mSendButton.setVisibility(View.VISIBLE);
-                }
-            });
-        } else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(R.string.error_message)
-                    .setTitle(R.string.error_title)
-                    .setPositiveButton(android.R.string.ok, null);
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }*/
     }
 
     public static class FriendViewHolder
@@ -178,7 +144,7 @@ public class RecipientsActivity extends AppCompatActivity {
 
         public FriendViewHolder(View v) {
             super(v);
-            mText = (TextView) v.findViewById(android.R.id.text1);
+            mText = (TextView) v.findViewById(R.id.friendName);
             v.setOnClickListener(this);
         }
 
@@ -193,7 +159,7 @@ public class RecipientsActivity extends AppCompatActivity {
             Friend selectedFriend = mFriendList.get(position);
             boolean selected = selectedFriend.isSelected();
             if (!selected) {
-                mText.setBackgroundColor(purple);
+                mText.setBackgroundColor(highlight);
                 selectedFriendsList.add(selectedFriend);
                 mFriendList.get(position).setSelected(true);
             } else {

@@ -3,29 +3,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:orientation="horizontal">
+              android:orientation="vertical">
 
 
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/inboxProgress"/>
     <TextView
-        android:id="@android:id/text1"
+        android:id="@+id/friendName"
         android:textSize="18sp"
         android:textStyle="bold"
         android:paddingTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:text="Michael Peacock" android:paddingBottom="10dp"/>
+        android:text="Michael Peacock"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"/>
 
-    <TextView
-        android:id="@android:id/text2"
-        android:textSize="14sp"
-        android:padding="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="12:50am"/>
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:scaleType="fitXY"
+        android:src="?android:attr/listDivider" />
 
 </LinearLayout>
