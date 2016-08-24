@@ -24,6 +24,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
@@ -52,10 +53,14 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.bobby.hotseat.HotSeatApplication;
 import com.example.bobby.hotseat.R;
 
 import java.io.IOException;
@@ -70,7 +75,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static android.os.SystemClock.sleep;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Camera2VideoFragment extends Fragment
@@ -106,6 +110,11 @@ public class Camera2VideoFragment extends Fragment
 
     private final ScheduledExecutorService scheduler =
             Executors.newScheduledThreadPool(1);
+
+    final Animation mAnimation = new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
+
+    public TextView mRecTextView;
+    public ImageView mDotImageView;
 
     /**
      * An {@link AutoFitTextureView} for camera preview.
@@ -301,11 +310,33 @@ public class Camera2VideoFragment extends Fragment
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
+
         return inflater.inflate(R.layout.fragment_camera2_video, container, false);
     }
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
+
+        mAnimation.setDuration(500); // duration - half a second
+        mAnimation.setInterpolator(new LinearInterpolator()); // do not alter mAnimation rate
+        mAnimation.setRepeatCount(Animation.INFINITE); // Repeat mAnimation infinitely
+        mAnimation.setRepeatMode(Animation.REVERSE); // Reverse mAnimation at the end so the button will fade back in
+        /*
+
+        mRecTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                view.clearAnimation();
+            }
+        });
+
+*/
+        mRecTextView = (TextView) getActivity().findViewById(R.id.recTextView);
+        mRecTextView.setVisibility(View.INVISIBLE);
+
+        mDotImageView = (ImageView) view.findViewById(R.id.dotImageView);
+        mDotImageView.setVisibility(View.INVISIBLE);
+
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
         mButtonVideo = (Button) view.findViewById(R.id.video);
         mButtonVideo.setOnClickListener(this);
@@ -328,8 +359,6 @@ public class Camera2VideoFragment extends Fragment
         }
 
         Log.d(TAG, "XXXXXXXXXXXXX   ON RESUME END");
-        // PUT IN HANDLER DELAY OR THIS method below
-        //delayRecordVideo();
     }
 
     public void delayRecordVideo() {
@@ -342,16 +371,16 @@ public class Camera2VideoFragment extends Fragment
                     stopRecordingVideo();
                 } else {
                     startRecordingVideo();
+
                 }
             }
         };
         final ScheduledFuture<?> beeperHandle =
-                scheduler.scheduleWithFixedDelay(beeper, 4, 100, SECONDS);
+                scheduler.scheduleWithFixedDelay(beeper, 1, 100, SECONDS);
         scheduler.schedule(new Runnable() {
             public void run() { beeperHandle.cancel(true); }
         }, 60 * 60, SECONDS);
     }
-
 
     @Override
     public void onPause() {
@@ -483,7 +512,6 @@ public class Camera2VideoFragment extends Fragment
             if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
             }
-            //String cameraId = manager.getCameraIdList()[0];
 
             String cameraId = getFrontFacingCameraId(manager);
 
@@ -495,11 +523,6 @@ public class Camera2VideoFragment extends Fragment
             mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
             mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
                     width, height, mVideoSize);
-
-
-
-
-
 
             int orientation = getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -616,7 +639,6 @@ public class Camera2VideoFragment extends Fragment
     private void setUpCaptureRequestBuilder(CaptureRequest.Builder builder) {
         builder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
         Log.d(TAG, "XXXXXXXXXXXXX   CAPTURE REQUEST BUILDER");
-
     }
 
     /**
@@ -734,6 +756,13 @@ public class Camera2VideoFragment extends Fragment
 
                             // Start recording
                             mMediaRecorder.start();
+
+                            // Start animation
+                            mRecTextView.setVisibility(View.VISIBLE);
+                            mDotImageView.setVisibility(View.VISIBLE);
+                            mRecTextView.startAnimation(mAnimation);
+                            mDotImageView.startAnimation(mAnimation);
+
                         }
                     });
                 }
@@ -751,7 +780,6 @@ public class Camera2VideoFragment extends Fragment
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private void closePreviewSession() {
@@ -760,11 +788,9 @@ public class Camera2VideoFragment extends Fragment
             mPreviewSession.close();
             mPreviewSession = null;
 
-
             // UI
             mIsRecordingVideo = false;
             //mButtonVideo.setText(R.string.record);
-
 
         }
     }
@@ -772,8 +798,7 @@ public class Camera2VideoFragment extends Fragment
     private void stopRecordingVideo() {
         // UI
         mIsRecordingVideo = false;
-        mButtonVideo.setText(R.string.record);
-
+        //mButtonVideo.setText(R.string.record);
 
         // Added by Ben Ning, to resolve exception issue when stop recording.
         try {
@@ -783,10 +808,7 @@ public class Camera2VideoFragment extends Fragment
             e.printStackTrace();
         }
 
-
-
         // Stop recording
-
 
         mMediaRecorder.stop();
         mMediaRecorder.reset();
@@ -798,7 +820,16 @@ public class Camera2VideoFragment extends Fragment
             Log.d(TAG, "Video saved: " + mNextVideoAbsolutePath);
         }
         mNextVideoAbsolutePath = null;
-        startPreview();
+
+        //startPreview();
+
+        Intent finishedResponseIntent = new Intent(getActivity(), MainActivity.class);
+        startActivity(finishedResponseIntent);
+
+    }
+
+    private void sendResponseToServer() {
+
     }
 
     /**
@@ -813,9 +844,7 @@ public class Camera2VideoFragment extends Fragment
 
             return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
                     (long) rhs.getWidth() * rhs.getHeight());
-
         }
-
     }
 
     public static class ErrorDialog extends DialogFragment {

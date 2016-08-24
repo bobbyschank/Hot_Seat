@@ -70,4 +70,6 @@
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
     <string name="intro_message">This sample demonstrates how to record video using Camera2 API.</string>
 
+    <string name="stopRecordingButton">Finished Response</string>
+
 </resources>

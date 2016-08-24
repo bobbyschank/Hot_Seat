@@ -281,6 +281,9 @@ public class RecipientsActivity extends AppCompatActivity {
             Log.d(TAG, "SPONSE ID: " + sponse.getIdToken());
             String key = mDatabase.child(Strings.KEY_USERS).child(friend.getIdToken()).child("sponses").push().getKey();
 
+
+            //TODO See if childUpdates would be better than setValue. ChildUpdates currently not getting sponse to DB.
+            /*
             HashMap<String, Object> result = new HashMap<>();
             result.put("uid", sponse.getIdToken());
             result.put("name", sponse.getDisplayName());
@@ -288,6 +291,7 @@ public class RecipientsActivity extends AppCompatActivity {
 
             Map<String, Object> childUpdates = new HashMap<>();
             childUpdates.put("/sponses/" + key, result);
+            */
 
             mDatabase.child(Strings.KEY_USERS).child(friend.getIdToken()).child("sponses").child(key).setValue(sponse);
         }

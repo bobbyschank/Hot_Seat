@@ -15,6 +15,7 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="camcorder"
+    xmlns:app2="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -22,39 +23,60 @@
     <com.example.bobby.hotseat.UI.AutoFitTextureView
         android:id="@+id/texture"
         android:layout_width="wrap_content"
-        android:layout_height="500dp"
+        android:layout_height="match_parent"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true" />
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+
+    <Button
+        android:id="@+id/video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/stopRecordingButton"
+        android:backgroundTint="#ffffff"
+        android:visibility="visible"
+        style="@style/Widget.AppCompat.Button"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/texture"
-        android:background="#4285f4">
+        android:layout_centerHorizontal="true"
+        android:elevation="0dp"
+        android:textAllCaps="false" />
 
-        <Button
-            android:id="@+id/video"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:text="startVID"
-            android:backgroundTint="#ffffff"
-            android:visibility="visible"
-            style="@style/Widget.AppCompat.Button"
-            tools:text="startVID" />
+    <ImageButton
+        android:id="@+id/info"
+        android:contentDescription="@string/description_info"
+        style="@android:style/Widget.Material.Light.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|right"
+        android:padding="20dp"
+        android:src="@mipmap/ic_launcher"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true" />
 
-        <ImageButton
-            android:id="@+id/info"
-            android:contentDescription="@string/description_info"
-            style="@android:style/Widget.Material.Light.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|right"
-            android:padding="20dp"
-            android:src="@mipmap/ic_launcher" />
 
-    </FrameLayout>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/red_dot"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/dotImageView"
+        android:paddingTop="5dp"
+        android:paddingRight="5dp" />
+
+    <TextView
+        android:text="REC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/dotImageView"
+        android:layout_toStartOf="@+id/dotImageView"
+        android:id="@+id/recTextView"
+        android:textColor="@android:color/white"
+        android:gravity="center_vertical"
+        android:textSize="20sp"
+        android:textStyle="normal|bold"
+        android:layout_alignTop="@id/dotImageView"
+        android:paddingTop="5dp" />
+
 
 </RelativeLayout>
