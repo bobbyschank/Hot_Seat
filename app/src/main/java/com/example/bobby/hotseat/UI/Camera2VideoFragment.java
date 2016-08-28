@@ -39,7 +39,10 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
@@ -61,14 +64,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.bobby.hotseat.Data.Sponse;
 import com.example.bobby.hotseat.R;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -338,7 +346,9 @@ public class Camera2VideoFragment extends Fragment
         mDotImageView.setVisibility(View.INVISIBLE);
 
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
+
         mButtonVideo = (Button) view.findViewById(R.id.video);
+        mButtonVideo.setVisibility(View.INVISIBLE);
         mButtonVideo.setOnClickListener(this);
         view.findViewById(R.id.info).setOnClickListener(this);
         Log.d(TAG, "XXXXXXXXXXXXX   ON VIEW CREATED END");
@@ -394,7 +404,40 @@ public class Camera2VideoFragment extends Fragment
         switch (view.getId()) {
             case R.id.video: {
                 if (mIsRecordingVideo) {
+
+                    FileObserver fileObserver = new FileObserver(mNextVideoAbsolutePath, FileObserver.CLOSE_WRITE) {
+                        @Override
+                        public void onEvent(int i, String s) {
+                            Log.d(TAG, "FILE OBSERVER FILE SAVE COMPLETE!!!!!!!!!!!");
+
+                        }
+                    };
+
+                    fileObserver.startWatching();
+                    Log.d(TAG, "START WATCHING  !!!!!!!!!!");
+
                     stopRecordingVideo();
+
+                    File file = new File(mNextVideoAbsolutePath);
+
+                    // Create sponse object
+                    Sponse sponse = new Sponse(MainActivity.currentUser.getIdToken(),
+                            MainActivity.currentUser.getDisplayName(),
+                            mNextVideoAbsolutePath.toString());
+
+                    List<String> authorId = new ArrayList<>();
+                    authorId.add(InboxFragment.sponseAuthor);
+
+                    Uri uri = Uri.parse(mNextVideoAbsolutePath);
+
+                    File thisFile = new File(mNextVideoAbsolutePath);
+
+                    Uri thisUri = Uri.fromFile(thisFile);
+                    sponse.uploadFileToStorage(thisUri, authorId);
+
+                    Intent finishedResponseIntent = new Intent(getActivity(), MainActivity.class);
+                    startActivity(finishedResponseIntent);
+
                 } else {
                     startRecordingVideo();
                 }
@@ -416,6 +459,7 @@ public class Camera2VideoFragment extends Fragment
     /**
      * Starts a background thread and its {@link Handler}.
      */
+
     private void startBackgroundThread() {
         mBackgroundThread = new HandlerThread("CameraBackground");
         mBackgroundThread.start();
@@ -683,6 +727,13 @@ public class Camera2VideoFragment extends Fragment
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         if (mNextVideoAbsolutePath == null || mNextVideoAbsolutePath.isEmpty()) {
             mNextVideoAbsolutePath = getVideoFilePath(getActivity());
+
+
+
+
+
+
+
         }
         mediaRecorder.setOutputFile(mNextVideoAbsolutePath);
         mediaRecorder.setVideoEncodingBitRate(10000000);
@@ -706,9 +757,70 @@ public class Camera2VideoFragment extends Fragment
     }
 
     private String getVideoFilePath(Context context) {
-        return context.getExternalFilesDir(null).getAbsolutePath() + "/"
-                + System.currentTimeMillis() + ".mp4";
+
+        String appName = Camera2VideoFragment.this.getString(R.string.app_name);
+
+        File mediaStorageDir = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                appName);
+
+        String path = mediaStorageDir.getPath() + File.separator;
+
+        File mediaFile = new File(path + "VID_" + System.currentTimeMillis() + ".mp4");
+
+        String string = Uri.fromFile(mediaFile).getPath();
+        Log.d(TAG, "XXXXXXXXXXXXX   NEW FILE URI String" + string);
+        Log.d(TAG, "XXXXXXXXXXXXX   NEW FILE URI" + Uri.fromFile(mediaFile).toString());
+        return string;
+
+/*
+        String finalPath =  context.getExternalFilesDir(null).getAbsolutePath() + "/"
+               + System.currentTimeMillis() + ".mp4";
+        Log.d(TAG, "XXXXXXXXXXXXX   NEW FILE URI" + finalPath);
+        return finalPath;
+        */
     }
+
+
+    /*
+           private File createOutputFile() {
+        if (isExternalStorageAvailable()) {
+            // Get the external storage directory
+            String appName = MainActivity.this.getString(R.string.app_name);
+            File mediaStorageDir = new File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                    appName);
+
+            // Create our subdirectory
+            if (!mediaStorageDir.exists()) {
+                if (mediaStorageDir.mkdirs()) {
+                    Log.e(TAG, "FAILED TO CREATE DIRECTORY.");
+                    return;
+                }
+            }
+
+            // Create a file name
+
+            // Create the file
+            File mediaFile;
+            Date now = new Date();
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(now);
+
+            String path = mediaStorageDir.getPath() + File.separator;
+            mediaFile = new File(path + "VID_" + timeStamp + ".mp4");
+
+
+            // Return the file's URI
+
+            Log.d(TAG, "FILE::" + Uri.fromFile(mediaFile));
+
+            return Uri.fromFile(mediaFile);
+
+        } else {
+            return null;
+        }
+    }
+    */
 
     private void startRecordingVideo() {
         boolean c = mCameraDevice.equals(null);
@@ -751,7 +863,7 @@ public class Camera2VideoFragment extends Fragment
                         public void run() {
                             Log.d(TAG, "XXXXXXXXXXXXX   ON CONFIGURED RUN START");
                             // UI
-                            mButtonVideo.setText(R.string.stop);
+                            mButtonVideo.setVisibility(View.VISIBLE);
                             mIsRecordingVideo = true;
 
                             // Start recording
@@ -762,9 +874,9 @@ public class Camera2VideoFragment extends Fragment
                             mDotImageView.setVisibility(View.VISIBLE);
                             mRecTextView.startAnimation(mAnimation);
                             mDotImageView.startAnimation(mAnimation);
-
                         }
                     });
+
                 }
 
                 @Override
@@ -775,6 +887,8 @@ public class Camera2VideoFragment extends Fragment
                     }
                 }
             }, mBackgroundHandler);
+
+
         } catch (CameraAccessException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -819,18 +933,17 @@ public class Camera2VideoFragment extends Fragment
                     Toast.LENGTH_SHORT).show();
             Log.d(TAG, "Video saved: " + mNextVideoAbsolutePath);
         }
-        mNextVideoAbsolutePath = null;
+
+        // mNextVideoAbsolutePath = null;
 
         //startPreview();
 
-        Intent finishedResponseIntent = new Intent(getActivity(), MainActivity.class);
-        startActivity(finishedResponseIntent);
+
+
+
 
     }
 
-    private void sendResponseToServer() {
-
-    }
 
     /**
      * Compares two {@code Size}s based on their areas.

@@ -64,6 +64,8 @@ public class InboxFragment extends Fragment {
 
     protected String mCurrentUser;
 
+    protected static String sponseAuthor;
+
     Firebase mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com/users/"
             + MainActivity.currentUser.getIdToken()
             + "/sponses");// TODO Don't use public static currentUser
@@ -131,9 +133,10 @@ public class InboxFragment extends Fragment {
                                         mRef.child(key).child("status").setValue(1);
                                         //arrangeDisplay(sponse);
                                         try {
-                                            loadSponse(file, uri, key, sponse);
+                                            sponse.loadSponse(file, key);
+                                            // loadSponse(file, uri, key, sponse);
                                             Log.d(TAG, "IN TRY");
-                                            //mRef.child(key).child("status").setValue(2);
+                                            // mRef.child(key).child("status").setValue(2);
 
                                         } catch (IOException e) {
                                             e.printStackTrace();
@@ -150,7 +153,9 @@ public class InboxFragment extends Fragment {
                                         Log.d(TAG, "In CASE 2.");
                                         try {
                                             if (file.exists()) {
+                                                sponseAuthor = sponse.getIdToken();
                                                 goVid(file, Uri.parse(uri));
+                                                sponse.getIdToken();
 
                                                 Log.d(TAG, "END GO VID TRY BLOCK");
                                             }
@@ -231,8 +236,8 @@ public class InboxFragment extends Fragment {
             extends RecyclerView.ViewHolder {
         static TextView mAuthorView;
         static TextView mTimeView;
-        static ProgressBar mInboxProgress;
-        static TextView mLoadIndicator;
+        public static ProgressBar mInboxProgress;
+        public static TextView mLoadIndicator;
 
         View mView;
 

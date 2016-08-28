@@ -349,7 +349,6 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d(TAG, "FILE::" + Uri.fromFile(mediaFile));
 
-            trialFile = mediaFile;
             return Uri.fromFile(mediaFile);
 
         }

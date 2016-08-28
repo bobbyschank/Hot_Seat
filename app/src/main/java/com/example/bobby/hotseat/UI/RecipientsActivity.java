@@ -34,9 +34,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class RecipientsActivity extends AppCompatActivity {
 
@@ -44,7 +42,7 @@ public class RecipientsActivity extends AppCompatActivity {
 
     protected String mCurrentUser;
     public static List<Friend> mFriendList = new ArrayList<>(); // TODO static?
-    public static List<Friend> selectedFriendsList = new ArrayList<>();
+    public static List<String> selectedFriendIds = new ArrayList<>();
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     /*private static String[] PERMISSIONS_STORAGE = {
@@ -78,6 +76,10 @@ public class RecipientsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mMediaUri = intent.getData();
 
+        final Sponse sponse = new Sponse(MainActivity.currentUser.getIdToken(),
+                MainActivity.currentUser.getDisplayName(),
+                null);
+
         mFriendsRecyclerView = (RecyclerView) findViewById(R.id.friendsRecycler);
         mFriendsRecyclerView.setHasFixedSize(true);
         mFriendsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -86,7 +88,10 @@ public class RecipientsActivity extends AppCompatActivity {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                uploadFileToStorage();
+
+                // sponse.setUri(key); Set Key? Worthwhile for Sponse variable?
+                sponse.uploadFileToStorage(mMediaUri, selectedFriendIds);
+                //uploadFileToStorage(sponse);
             }
         });
 
@@ -134,13 +139,11 @@ public class RecipientsActivity extends AppCompatActivity {
         Log.d(TAG, "Adapter created");
         mFriendsRecyclerView.setAdapter(adapter);
         Log.d(TAG, "Adapter set");
-
     }
 
     public static class FriendViewHolder
                     extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView mText;
-
 
         public FriendViewHolder(View v) {
             super(v);
@@ -153,6 +156,7 @@ public class RecipientsActivity extends AppCompatActivity {
          *
          * @param v The view that was clicked.
          */
+
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
@@ -160,23 +164,23 @@ public class RecipientsActivity extends AppCompatActivity {
             boolean selected = selectedFriend.isSelected();
             if (!selected) {
                 mText.setBackgroundColor(highlight);
-                selectedFriendsList.add(selectedFriend);
+                selectedFriendIds.add(selectedFriend.getIdToken());
                 mFriendList.get(position).setSelected(true);
             } else {
                 mText.setBackgroundColor(Color.TRANSPARENT);
-                selectedFriendsList.remove(selectedFriend);
+                selectedFriendIds.remove(selectedFriend);
                 mFriendList.get(position).setSelected(false);
             }
-            for (Friend f:selectedFriendsList) {
-                Log.d(TAG, "CLICKED IN FRIENDVIEWHOLDER, " + f.getDisplayName().toString());
+            for (String s: selectedFriendIds) {
+                Log.d(TAG, "CLICKED IN FRIENDVIEWHOLDER, " + s);
             }
         }
     }
 
-    private void uploadFileToStorage() {
+    private void uploadFileToStorage(final Sponse sponse) {
 
         // File or Blob
-        //Uri file = Uri.fromFile(new File("path/to/mountains.jpg"));
+        // Uri file = Uri.fromFile(new File("path/to/mountains.jpg"));
         Uri file = mMediaUri;
         String lastPathSeg = mMediaUri.getLastPathSegment();
         String contentType = "Unknown Type";
@@ -224,9 +228,8 @@ public class RecipientsActivity extends AppCompatActivity {
                 // Handle successful uploads on complete
                 Uri downloadUrl = taskSnapshot.getMetadata().getDownloadUrl();
                 storageUri = downloadUrl;
-                Sponse sponse = new Sponse(MainActivity.currentUser.getIdToken(),
-                                            MainActivity.currentUser.getDisplayName(),
-                                            downloadUrl.toString());
+
+                sponse.setUri(downloadUrl.toString());
 
                 Log.d(TAG, "SPONSE TIMESTAMP:     " + sponse.getTimeStamp());
 
@@ -276,11 +279,10 @@ public class RecipientsActivity extends AppCompatActivity {
     }
 
     private void sendSponse(Sponse sponse) {
-        for (Friend friend : selectedFriendsList) {
+        for (String friendId : selectedFriendIds) {
 
             Log.d(TAG, "SPONSE ID: " + sponse.getIdToken());
-            String key = mDatabase.child(Strings.KEY_USERS).child(friend.getIdToken()).child("sponses").push().getKey();
-
+            String key = mDatabase.child(Strings.KEY_USERS).child(friendId).child("sponses").push().getKey();
 
             //TODO See if childUpdates would be better than setValue. ChildUpdates currently not getting sponse to DB.
             /*
@@ -293,7 +295,7 @@ public class RecipientsActivity extends AppCompatActivity {
             childUpdates.put("/sponses/" + key, result);
             */
 
-            mDatabase.child(Strings.KEY_USERS).child(friend.getIdToken()).child("sponses").child(key).setValue(sponse);
+            mDatabase.child(Strings.KEY_USERS).child(friendId).child("sponses").child(key).setValue(sponse);
         }
     }
 }
