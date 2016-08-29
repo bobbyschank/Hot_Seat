@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.example.bobby.hotseat.UI.ChooseFragment;
-import com.example.bobby.hotseat.UI.FriendsFragment;
+import com.example.bobby.hotseat.UI.ReactionsFragment;
 import com.example.bobby.hotseat.UI.InboxFragment;
 import com.example.bobby.hotseat.R;
 
@@ -40,7 +40,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             case 1:
                 return new ChooseFragment();
             case 2:
-                return new FriendsFragment();
+                return new ReactionsFragment();
         }
         return null;
     }
@@ -58,7 +58,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             case 1:
                 return mContext.getString(R.string.title_section_choose);
             case 2:
-                return mContext.getString(R.string.title_section_friends);
+                return mContext.getString(R.string.title_section_reactions);
         }
         return null;
     }

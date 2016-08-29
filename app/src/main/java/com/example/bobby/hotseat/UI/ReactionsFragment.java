@@ -1,15 +1,12 @@
 package com.example.bobby.hotseat.UI;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,37 +16,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bobby.hotseat.Data.Sponse;
+import com.example.bobby.hotseat.Data.Strings;
+
 import com.example.bobby.hotseat.NpaLinearLayoutManager;
 import com.example.bobby.hotseat.R;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseError;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import org.w3c.dom.Comment;
-
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import static android.app.Activity.RESULT_CANCELED;
-import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by bobby on 6/6/16.
  */
-
-public class InboxFragment extends Fragment {
+public class ReactionsFragment extends Fragment{
 
 
     private static final String TAG = InboxFragment.class.getSimpleName();
@@ -69,7 +56,7 @@ public class InboxFragment extends Fragment {
 
     Firebase mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com/users/"
             + MainActivity.currentUser.getIdToken()
-            + "/sponses");// TODO Don't use public static currentUser
+            + "/" + Strings.KEY_REACTIONS);// TODO Don't use public static currentUser
 
     private DatabaseReference mDatabase;
 
@@ -80,7 +67,6 @@ public class InboxFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Firebase.setAndroidContext(getActivity());
-
     }
 
     /**
@@ -94,27 +80,27 @@ public class InboxFragment extends Fragment {
         super.onResume();
 
 
-        final FirebaseRecyclerAdapter<Sponse, InboxViewHolder> adapter =
-                new FirebaseRecyclerAdapter<Sponse, InboxViewHolder>(
+        final FirebaseRecyclerAdapter<Sponse, InboxFragment.InboxViewHolder> adapter =
+                new FirebaseRecyclerAdapter<Sponse, InboxFragment.InboxViewHolder>(
                         Sponse.class,
                         R.layout.inbox_item,
                         //android.R.layout.two_line_list_item,
-                        InboxViewHolder.class,
+                        InboxFragment.InboxViewHolder.class,
                         mRef)
                 {
 
                     @Override
-                    protected void populateViewHolder(InboxViewHolder inboxViewHolder, final Sponse sponse, int i) {
+                    protected void populateViewHolder(InboxFragment.InboxViewHolder inboxViewHolder, final Sponse sponse, int i) {
 
                         emptyTextView.setVisibility(View.INVISIBLE);
 
                         Log.d(TAG, "In Populate View Holder.");
-                        ((TextView) InboxViewHolder.mAuthorView).setText((CharSequence) sponse.getDisplayName());
+                        ((TextView) InboxFragment.InboxViewHolder.mAuthorView).setText((CharSequence) sponse.getDisplayName());
 
                         Log.d(TAG, "TIMESTAMP:            " + sponse.getTimeStamp() + i);
                         Log.d(TAG, "STATUS:            " + sponse.getStatus());
 
-                        ((TextView) InboxViewHolder.mTimeView).setText((CharSequence) sponse.getTimeStamp());
+                        ((TextView) InboxFragment.InboxViewHolder.mTimeView).setText((CharSequence) sponse.getTimeStamp());
 
                         final String key = this.getRef(i).getKey();
 
@@ -155,7 +141,7 @@ public class InboxFragment extends Fragment {
                                         try {
                                             if (file.exists()) {
                                                 sponseAuthor = sponse.getIdToken();
-                                                goVid(file, Uri.parse(uri));
+                                                viewReaction(file, Uri.parse(uri));
                                                 sponse.getIdToken();
 
                                                 Log.d(TAG, "END GO VID TRY BLOCK");
@@ -180,10 +166,7 @@ public class InboxFragment extends Fragment {
         mInboxRecyclerView.setAdapter(adapter);
         Log.d(TAG, "Adapter set");
 
-
     }
-
-
 
 
     @Override
@@ -239,10 +222,10 @@ public class InboxFragment extends Fragment {
                 Log.d(TAG, "LOCAL TEMP FILE CREATED");
                 //b[0] = true;
                 // i = 2;
-               //arrangeDisplay(sponse);
+                //arrangeDisplay(sponse);
 
-                InboxViewHolder.mInboxProgress.setVisibility(View.INVISIBLE);
-                ((TextView) InboxViewHolder.mLoadIndicator).setText((CharSequence) "tap to view");
+                InboxFragment.InboxViewHolder.mInboxProgress.setVisibility(View.INVISIBLE);
+                ((TextView) InboxFragment.InboxViewHolder.mLoadIndicator).setText((CharSequence) "tap to view");
 
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -279,7 +262,7 @@ public class InboxFragment extends Fragment {
 
     }
 
-    public void goVid(File file, Uri uri) throws IOException {
+    public void viewReaction(File file, Uri uri) throws IOException {
 
         Log.d(TAG, "START THAT VIDEO" + uri);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -305,8 +288,8 @@ public class InboxFragment extends Fragment {
                 Log.d(TAG, "HOPEFULLY, END OF VIDEO.");
 
                 // Navigate to Record Video
-                Intent autoRecordIntent = new Intent(getActivity(), AutoRecordActivity.class);
-                startActivity(autoRecordIntent);
+                //Intent autoRecordIntent = new Intent(getActivity(), AutoRecordActivity.class);
+                //startActivity(autoRecordIntent);
 
             } else {
                 Log.d(TAG, "RESULT NOT OK.");
@@ -321,22 +304,119 @@ public class InboxFragment extends Fragment {
         switch (sponse.getStatus()) {
             case 0:{
                 Log.d(TAG, "In CASE 0 DISPLAY SWITCH");
-                InboxViewHolder.mInboxProgress.setVisibility(View.INVISIBLE);
-                ((TextView) InboxViewHolder.mLoadIndicator).setText((CharSequence) "tap to load");
+                InboxFragment.InboxViewHolder.mInboxProgress.setVisibility(View.INVISIBLE);
+                ((TextView) InboxFragment.InboxViewHolder.mLoadIndicator).setText((CharSequence) "tap to load");
                 return;
             }
             case 1:{
                 Log.d(TAG, "In CASE 1 DISPLAY SWITCH.");
-                InboxViewHolder.mInboxProgress.setVisibility(View.VISIBLE);
-                ((TextView) InboxViewHolder.mLoadIndicator).setText((CharSequence) "loading");
+                InboxFragment.InboxViewHolder.mInboxProgress.setVisibility(View.VISIBLE);
+                ((TextView) InboxFragment.InboxViewHolder.mLoadIndicator).setText((CharSequence) "loading");
                 return;
             }
             case 2:{
                 Log.d(TAG, "In CASE 2 DISPLAY SWITCH.");
-                InboxViewHolder.mInboxProgress.setVisibility(View.INVISIBLE);
-                ((TextView) InboxViewHolder.mLoadIndicator).setText((CharSequence) "tap to view");
+                InboxFragment.InboxViewHolder.mInboxProgress.setVisibility(View.INVISIBLE);
+                ((TextView) InboxFragment.InboxViewHolder.mLoadIndicator).setText((CharSequence) "tap to view");
                 return;
             }
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+    /*
+
+public class FriendsFragment extends ListFragment{
+
+    private static final String TAG = InboxFragment.class.getSimpleName();
+
+    protected String mCurrentUser;
+    protected List<String> mFriends;
+
+    FirebaseAuth mAuth;
+    Firebase mRef;
+    private DatabaseReference mDatabase;
+
+    ListView mFriendsListView;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_friends, container, false);
+
+        /*
+        TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+        textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+        */
+/*
+
+        return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+       // mCurrentUser = ;
+       // mFriendsRelation = ;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+       // mInboxRecyclerView = (ListView) mInboxRecyclerView.findViewById(R.id.friendsListView);
+
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com");
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        Firebase friendsRef = mRef.child(Strings.KEY_USERS)
+                .child(MainActivity.currentUser.getIdToken())
+                .child("friendsHash"); // TODO Don't use public static currentUser
+        Log.d(TAG, friendsRef.toString() + "");
+
+        int i = 0;
+
+        FirebaseListAdapter<String> adapter =
+                new FirebaseListAdapter<String>(getActivity(),
+                                            String.class,
+                                            //android.R.layout.simple_list_item_1,
+                                            R.layout.friend_list_item,
+                                            friendsRef) {
+                    @Override
+                    public void populateView(View view,  String s, int i) {
+                        ((TextView) view.findViewById(android.R.id.text1)).setText((CharSequence) s);
+                    }
+
+        };
+
+        if (adapter != null) {
+
+            setListAdapter(adapter);
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.error_message)
+                    .setTitle(R.string.error_title)
+                    .setPositiveButton(android.R.string.ok, null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+        //mInboxRecyclerView.setAdapter(adapter);
+    }
+}
+*/

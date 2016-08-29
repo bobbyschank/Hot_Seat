@@ -9,6 +9,8 @@ public final class Strings {
     // Field Name
     public static final String KEY_USERID = "userID";
     public static final String KEY_FRIENDSHASH = "friendsHash";
+    public static final String KEY_SPONSES = "sponses";
+    public static final String KEY_REACTIONS = "reactions";
 
     public static final String KEY_USERNAME = "username";
     public static final String KEY_USERS = "users";

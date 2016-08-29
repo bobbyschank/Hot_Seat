@@ -65,6 +65,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bobby.hotseat.Data.Sponse;
+import com.example.bobby.hotseat.Data.Strings;
 import com.example.bobby.hotseat.R;
 
 import java.io.File;
@@ -433,7 +434,7 @@ public class Camera2VideoFragment extends Fragment
                     File thisFile = new File(mNextVideoAbsolutePath);
 
                     Uri thisUri = Uri.fromFile(thisFile);
-                    sponse.uploadFileToStorage(thisUri, authorId);
+                    sponse.uploadFileToStorage(thisUri, authorId, Strings.KEY_REACTIONS);
 
                     Intent finishedResponseIntent = new Intent(getActivity(), MainActivity.class);
                     startActivity(finishedResponseIntent);

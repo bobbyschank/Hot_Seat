@@ -118,7 +118,7 @@ public class Sponse {
         return "Sponse{mIdToken='" + mIdToken + "\', mDisplayName='" + mDisplayName + "\', mUri='" + mUri + "'}";
     }
 
-    public void uploadFileToStorage(Uri uri, final List<String> selectedFriendIds) {
+    public void uploadFileToStorage(Uri uri, final List<String> selectedFriendIds, final String child) {
 
         // File or Blob
         //Uri file = Uri.fromFile(new File("path/to/mountains.jpg"));
@@ -183,12 +183,12 @@ public class Sponse {
 
                 Log.d(TAG, "SPONSE TIMESTAMP:     " + getTimeStamp());
                 Log.d(TAG, downloadUrl + " UPLOAD COMPLETE");
-                sendSponse(selectedFriendIds, Sponse.this);
+                sendSponse(selectedFriendIds, Sponse.this, child);
             }
         });
     }
 
-    public void sendSponse(List<String> selectedFriendIds, Sponse sponse) {
+    public void sendSponse(List<String> selectedFriendIds, Sponse sponse, String child) {
         for (String friendId : selectedFriendIds) {
 
             Log.d(TAG, "SPONSE ID: " + getIdToken());
@@ -205,7 +205,7 @@ public class Sponse {
             childUpdates.put("/sponses/" + key, result);
             */
 
-            mDatabase.child(Strings.KEY_USERS).child(friendId).child("sponses").child(key).setValue(sponse);
+            mDatabase.child(Strings.KEY_USERS).child(friendId).child(child).child(key).setValue(sponse);
         }
     }
 
@@ -220,7 +220,6 @@ public class Sponse {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                 mRef.child(key).child("status").setValue(2);
-
 
                 // Local temp file has been created
                 Log.d(TAG, "LOCAL TEMP FILE CREATED");
@@ -239,7 +238,5 @@ public class Sponse {
                 // Handle any errors
             }
         });
-
     }
-
 }

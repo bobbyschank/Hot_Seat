@@ -33,6 +33,8 @@
     <!-- Fragments -->
     <string name="title_section_inbox">Inbox</string>
     <string name="title_section_choose">\'Sponse Sombody</string>
+    <string name="title_section_reactions">Reactions</string>
+
     <string name="title_section_friends">Friends</string>
 
     <string name="empty_inbox_label">No new messages</string>

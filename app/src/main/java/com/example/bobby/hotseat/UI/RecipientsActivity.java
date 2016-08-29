@@ -90,7 +90,7 @@ public class RecipientsActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 // sponse.setUri(key); Set Key? Worthwhile for Sponse variable?
-                sponse.uploadFileToStorage(mMediaUri, selectedFriendIds);
+                sponse.uploadFileToStorage(mMediaUri, selectedFriendIds, Strings.KEY_SPONSES);
                 //uploadFileToStorage(sponse);
             }
         });
