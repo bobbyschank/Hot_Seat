@@ -2,6 +2,8 @@ package com.example.bobby.hotseat.UI;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -12,6 +14,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -19,8 +23,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bobby.hotseat.Data.Sponse;
+import com.example.bobby.hotseat.Data.Strings;
 import com.example.bobby.hotseat.NpaLinearLayoutManager;
 import com.example.bobby.hotseat.R;
+import com.example.bobby.hotseat.VideoPlayer;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -57,10 +63,15 @@ public class InboxFragment extends Fragment {
     private RecyclerView mInboxRecyclerView;
     TextView emptyTextView;
 
+    private static final String MEDIA = "media";
+
     public static final int MEDIA_TYPE_IMAGE = 2;
     public static final int MEDIA_TYPE_VIDEO = 3;
 
     public static final int REQUEST_AUTORECORD = 4;
+
+    private static final int LOCAL_VIDEO = 6;
+
     public boolean isLoaded = false;
 
     protected String mCurrentUser;
@@ -75,12 +86,16 @@ public class InboxFragment extends Fragment {
 
     static FirebaseStorage storage = FirebaseStorage.getInstance();
 
+
+    private SurfaceView mPreview;
+    private SurfaceHolder holder;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Firebase.setAndroidContext(getActivity());
-
     }
 
     /**
@@ -134,7 +149,7 @@ public class InboxFragment extends Fragment {
                                         mRef.child(key).child("status").setValue(1);
                                         //arrangeDisplay(sponse);
                                         try {
-                                            sponse.loadSponse(file, key);
+                                            sponse.loadSponse(file, key, Strings.KEY_SPONSES);
                                             // loadSponse(file, uri, key, sponse);
                                             Log.d(TAG, "IN TRY");
                                             // mRef.child(key).child("status").setValue(2);
@@ -156,6 +171,7 @@ public class InboxFragment extends Fragment {
                                             if (file.exists()) {
                                                 sponseAuthor = sponse.getIdToken();
                                                 goVid(file, Uri.parse(uri));
+
                                                 sponse.getIdToken();
 
                                                 Log.d(TAG, "END GO VID TRY BLOCK");
@@ -180,7 +196,6 @@ public class InboxFragment extends Fragment {
         mInboxRecyclerView.setAdapter(adapter);
         Log.d(TAG, "Adapter set");
 
-
     }
 
 
@@ -198,6 +213,7 @@ public class InboxFragment extends Fragment {
         //mInboxRecyclerView.setHasFixedSize(true);
 
         emptyTextView = (TextView) rootView.findViewById(R.id.emptyInbox);
+
 
         return rootView;
     }
@@ -252,7 +268,6 @@ public class InboxFragment extends Fragment {
                 // Handle any errors
             }
         });
-
     }
 
     private File createFile(String key, int mediaType) {
@@ -276,14 +291,24 @@ public class InboxFragment extends Fragment {
         else {return null;}
 
         return file;
-
     }
 
     public void goVid(File file, Uri uri) throws IOException {
 
         Log.d(TAG, "START THAT VIDEO" + uri);
-        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        intent.setDataAndType(Uri.fromFile(file), "video/*");
+
+
+        Intent intent = new Intent(getActivity(),
+                VideoPlayer.class);
+        intent.putExtra(MEDIA, LOCAL_VIDEO);
+        intent.putExtra("fileUri", file.getAbsolutePath());
+        //startActivity(intent);
+
+
+
+
+        //Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        //intent.setDataAndType(Uri.fromFile(file), "video/*");
         startActivityForResult(intent, REQUEST_AUTORECORD);
     }
 
@@ -294,10 +319,6 @@ public class InboxFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_AUTORECORD) {
-
-            int i = resultCode;
-
-            int ii = 0;
 
             if (resultCode == 0) // TODO get intent resultCode to recognize video completion
             {

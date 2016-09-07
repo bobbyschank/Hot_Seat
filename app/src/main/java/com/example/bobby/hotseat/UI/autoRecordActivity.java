@@ -22,4 +22,7 @@ public class AutoRecordActivity extends Activity {
                     .commit();
         }
     }
+    @Override
+    public void onBackPressed() {
+    }
 }

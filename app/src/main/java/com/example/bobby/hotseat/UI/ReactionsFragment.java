@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -112,15 +113,26 @@ public class ReactionsFragment extends Fragment{
                                 String uri = sponse.getUri();
 
                                 Log.d(TAG, "UNIQUE KEY:          " + key);
-                                File file = createFile(key, MEDIA_TYPE_VIDEO);
+                                final File file = createFile(key, MEDIA_TYPE_VIDEO);
 
                                 switch (sponse.getStatus()) {
                                     case 0: {
                                         Log.d(TAG, "In CASE 0");
                                         mRef.child(key).child("status").setValue(1);
                                         //arrangeDisplay(sponse);
+
                                         try {
-                                            sponse.loadSponse(file, key);
+                                            FileObserver fileObserver = new FileObserver(file.getPath(), FileObserver.CLOSE_WRITE) {
+                                                @Override
+                                                public void onEvent(int i, String s) {
+                                                    Log.d(TAG, "FILE OBSERVER REACTION SAVE COMPLETE!!!!!!!!!!!" + file.getPath());
+
+                                                }
+
+                                            };
+                                            Log.d(TAG, "FILE OBSERVER REACTION START WATCHING!!!!!!!!!!!" + file.getPath());
+                                            fileObserver.startWatching();
+                                            sponse.loadSponse(file, key, Strings.KEY_REACTIONS);
                                             // loadSponse(file, uri, key, sponse);
                                             Log.d(TAG, "IN TRY");
                                             // mRef.child(key).child("status").setValue(2);
@@ -260,6 +272,14 @@ public class ReactionsFragment extends Fragment{
 
         return file;
 
+    }
+
+    public void viewSponse(File file, Uri uri) throws IOException {
+
+        Log.d(TAG, "START THAT VIDEO" + uri);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        intent.setDataAndType(Uri.fromFile(file), "video/*");
+        startActivityForResult(intent, REQUEST_AUTORECORD);
     }
 
     public void viewReaction(File file, Uri uri) throws IOException {

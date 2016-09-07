@@ -48,9 +48,10 @@ public class Sponse {
 
     private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
+
     Firebase mRef = new Firebase("https://hot-seat-28ddb.firebaseio.com/users/"
-            + MainActivity.currentUser.getIdToken()
-            + "/sponses");// TODO Don't use public static currentUser
+            + MainActivity.currentUser.getIdToken());// TODO Don't use public static currentUser
+
 
     private String mIdToken;
     private String mDisplayName;
@@ -209,17 +210,18 @@ public class Sponse {
         }
     }
 
-    public void loadSponse(final File file, final String key) throws IOException {
+    public void loadSponse(final File file, final String key, final String child) throws IOException {
 
         StorageReference storageRef = storage.getReferenceFromUrl(this.getUri());
         //final boolean[] b = new boolean[0];
 
         int i = 0;
+        Log.d(TAG, "GET LAST PATH SEG " );
 
         storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                mRef.child(key).child("status").setValue(2);
+                mRef.child(child).child(key).child("status").setValue(2);
 
                 // Local temp file has been created
                 Log.d(TAG, "LOCAL TEMP FILE CREATED");
